@@ -14,6 +14,15 @@ async function setup() {
     const outputNode = context.createGain();
     outputNode.connect(context.destination);
 
+    // 🛠 Fix: AudioContext erst nach User-Interaktion starten
+    document.addEventListener("click", async function resumeAudioContext() {
+        if (context.state !== "running") {
+            await context.resume();
+            console.log("🔊 AudioContext wurde gestartet!");
+        }
+        document.removeEventListener("click", resumeAudioContext);
+    });
+
     let response, patcher;
     try {
         response = await fetch(patchExportURL);
@@ -31,20 +40,19 @@ async function setup() {
     }
 
     try {
-        window.device = await RNBO.createDevice({ context, patcher });
-        window.device.node.connect(outputNode);
+        const device = await RNBO.createDevice({ context, patcher });
+        device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
 
         // 🛠 Debug: Zeige ALLE verfügbaren Parameter
-        console.log("📡 Verfügbare RNBO-Parameter:", window.device.parameters);
+        console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
+
+        setupWebflowForm(device);
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
         return;
     }
-
-    setupWebflowForm();
 }
-
 
 // Lade RNBO-Skript dynamisch
 function loadRNBOScript(version) {
@@ -66,6 +74,7 @@ function loadRNBOScript(version) {
     });
 }
 
+// Text zu Phoneme umwandeln
 async function textToSpeechParams(text) {
     try {
         const pr = await import('https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm');
@@ -109,17 +118,18 @@ async function textToSpeechParams(text) {
     }
 }
 
-
-// Werte an RNBO senden
-async function sendToRNBO(text) {
-    if (!window.device) {
+// Werte an RNBO senden (Jetzt mit `device`)
+async function sendToRNBO(device, text) {
+    if (!device) {
         console.error("❌ RNBO nicht geladen!");
         return;
     }
 
-    console.log("📡 Verfügbare RNBO-Parameter:", window.device.parameters);
+    console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
 
-    if (!window.device.parameters || !window.device.parameters.speech) {
+    const speechParam = device.parametersById.get("speech");
+
+    if (!speechParam) {
         console.error("❌ RNBO-Parameter 'speech' existiert nicht! Überprüfe deinen RNBO-Patch.");
         return;
     }
@@ -134,14 +144,13 @@ async function sendToRNBO(text) {
         }
         setTimeout(() => {
             console.log(`🎛 Setze RNBO-Parameter: speech = ${value}`);
-            window.device.parameters.speech.value = value;
+            speechParam.value = value;
         }, index * 200);
     });
 }
 
 // Webflow-Formular automatisch erkennen & steuern
-function setupWebflowForm() {
-    // Suche Formular mit ID "wf-form-TEXTFORM" oder data-name="TEXTFORM"
+function setupWebflowForm(device) {
     const form = document.querySelector("#wf-form-TEXTFORM, [data-name='TEXTFORM']");
     if (!form) {
         console.error("❌ Webflow-Formular nicht gefunden! Stelle sicher, dass die ID 'wf-form-TEXTFORM' existiert.");
@@ -165,7 +174,7 @@ function setupWebflowForm() {
         }
 
         console.log("▶️ Text aus Webflow-Formular:", text);
-        sendToRNBO(text);
+        sendToRNBO(device, text);
     });
 
     console.log("✅ Webflow-Formular erfolgreich mit RNBO verbunden!");
