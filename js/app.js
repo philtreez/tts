@@ -139,8 +139,8 @@ async function textToSpeechParams(text) {
 
 function textToPhonemes(text) {
     text = text.toLowerCase();
-    if (phonemeDictionary[text]) {
-        return phonemeDictionary[text];
+    if (phonemeMap[text]) {
+        return phonemeMap[text];
     } else {
         console.warn(`⚠️ Unbekanntes Wort: ${text} → Wörterbuch enthält es nicht!`);
         return [];
