@@ -9,20 +9,10 @@ const phonemeMap = {
 async function setup() {
     console.log("🚀 app.js läuft!");
 
-    // AudioContext erstellen
     const WAContext = window.AudioContext || window.webkitAudioContext;
     const context = new WAContext();
     const outputNode = context.createGain();
     outputNode.connect(context.destination);
-
-    // 🛠 Fix: AudioContext erst nach User-Interaktion starten (Chrome/Safari)
-    document.addEventListener("click", async function resumeAudioContext() {
-        if (context.state !== "running") {
-            await context.resume();
-            console.log("🔊 AudioContext wurde gestartet!");
-        }
-        document.removeEventListener("click", resumeAudioContext);
-    });
 
     let response, patcher;
     try {
@@ -40,11 +30,13 @@ async function setup() {
         return;
     }
 
-    // RNBO-Gerät erstellen
     try {
         window.device = await RNBO.createDevice({ context, patcher });
         window.device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
+
+        // 🛠 Debug: Zeige ALLE verfügbaren Parameter
+        console.log("📡 Verfügbare RNBO-Parameter:", window.device.parameters);
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
         return;
@@ -52,6 +44,7 @@ async function setup() {
 
     setupWebflowForm();
 }
+
 
 // Lade RNBO-Skript dynamisch
 function loadRNBOScript(version) {
