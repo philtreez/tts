@@ -75,33 +75,44 @@ function loadRNBOScript(version) {
 
 // Text zu Phoneme umwandeln
 async function textToSpeechParams(text) {
-    const pr = await import('https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm');
-    console.log("📖 Wörterbuch geladen:", pr);
+    try {
+        const pr = await import('https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm');
+        console.log("📖 Wörterbuch erfolgreich geladen:", pr);
 
-    const words = text.toLowerCase().split(/\s+/);
-    let speechParams = [];
-
-    words.forEach(word => {
-        if (pr[word]) {
-            let phonemes = pr[word][0].split(" ");
-            console.log(`🗣 Wort "${word}" → Phoneme:`, phonemes);
-
-            phonemes.forEach(ph => {
-                if (phonemeMap.hasOwnProperty(ph)) {
-                    speechParams.push(phonemeMap[ph]);
-                } else {
-                    console.warn(`⚠️ Unbekanntes Phonem: ${ph}`);
-                    speechParams.push(0); // Fallback zu Stille
-                }
-            });
-        } else {
-            console.warn(`⚠️ Unbekanntes Wort: ${word}`);
-            speechParams.push(0);
+        if (!pr) {
+            console.error("❌ Wörterbuch konnte nicht geladen werden!");
+            return [];
         }
-    });
 
-    console.log("🔡 Generierte Speech-Werte:", speechParams);
-    return speechParams;
+        const words = text.toLowerCase().split(/\s+/);
+        let speechParams = [];
+
+        words.forEach(word => {
+            if (pr[word]) {
+                let phonemes = pr[word][0].split(" ");
+                console.log(`🗣 Wort "${word}" → Phoneme:`, phonemes);
+
+                phonemes.forEach(ph => {
+                    if (phonemeMap.hasOwnProperty(ph)) {
+                        speechParams.push(phonemeMap[ph]);
+                    } else {
+                        console.warn(`⚠️ Unbekanntes Phonem: ${ph}`);
+                        speechParams.push(0);
+                    }
+                });
+            } else {
+                console.warn(`⚠️ Unbekanntes Wort: ${word} → Prüfe cmu-pronouncing-dictionary!`);
+                speechParams.push(0);
+            }
+        });
+
+        console.log("🔡 Generierte Speech-Werte:", speechParams);
+        return speechParams;
+
+    } catch (err) {
+        console.error("❌ Fehler beim Laden von cmu-pronouncing-dictionary:", err);
+        return [];
+    }
 }
 
 // Werte an RNBO senden
