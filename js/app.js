@@ -128,7 +128,6 @@ async function sendToRNBO(device, text) {
     }
 
     console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
-
     const speechParam = device.parametersById.get("speech");
 
     if (!speechParam) {
@@ -147,7 +146,7 @@ async function sendToRNBO(device, text) {
         setTimeout(() => {
             console.log(`🎛 Setze RNBO-Parameter: speech = ${value}`);
             speechParam.value = value;
-        }, index * 200);
+        }, index * 300); // ⏳ 300ms Verzögerung pro Phonem
     });
 }
 
