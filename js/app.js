@@ -7,6 +7,8 @@ const phonemeMap = {
 };
 
 async function setup() {
+    console.log("🚀 app.js läuft!");
+
     // AudioContext erstellen
     const WAContext = window.AudioContext || window.webkitAudioContext;
     const context = new WAContext();
@@ -23,14 +25,14 @@ async function setup() {
         }
 
     } catch (err) {
-        console.error("Fehler beim Laden des RNBO-Patchers:", err);
+        console.error("❌ Fehler beim Laden des RNBO-Patchers:", err);
         return;
     }
 
     // RNBO-Gerät erstellen
     window.device = await RNBO.createDevice({ context, patcher });
     window.device.node.connect(outputNode);
-    console.log("RNBO WebAudio erfolgreich geladen!");
+    console.log("✅ RNBO WebAudio erfolgreich geladen!");
 
     // Webflow-Formular mit RNBO verbinden
     setupWebflowForm();
@@ -69,18 +71,19 @@ async function textToSpeechParams(text) {
         }
     });
 
+    console.log("🔡 Phoneme generiert:", speechParams);
     return speechParams;
 }
 
 // Werte an RNBO senden
 async function sendToRNBO(text) {
     if (!window.device) {
-        console.error("RNBO nicht geladen!");
+        console.error("❌ RNBO nicht geladen!");
         return;
     }
 
     const speechValues = await textToSpeechParams(text);
-    console.log("Sending Speech Values:", speechValues);
+    console.log("📡 Sende Speech-Werte an RNBO:", speechValues);
 
     speechValues.forEach((value, index) => {
         setTimeout(() => {
@@ -91,23 +94,34 @@ async function sendToRNBO(text) {
 
 // Webflow-Formular automatisch erkennen & steuern
 function setupWebflowForm() {
-    const form = document.querySelector("form"); // Automatische Erkennung
+    const form = document.querySelector("[data-wf-form='TEXTFORM']");
+     // Automatische Erkennung
     if (!form) {
-        console.warn("Kein Formular gefunden!");
+        console.error("❌ Webflow-Formular nicht gefunden!");
         return;
     }
 
     const textInput = form.querySelector("input");
     const submitButton = form.querySelector("button");
 
+    if (!textInput || !submitButton) {
+        console.error("❌ Textfeld oder Submit-Button nicht gefunden!");
+        return;
+    }
+
     submitButton.addEventListener("click", function(event) {
         event.preventDefault(); // Webflow-Submit verhindern
         const text = textInput.value;
-        if (text.trim() === "") return;
+        if (text.trim() === "") {
+            console.warn("⚠️ Kein Text eingegeben!");
+            return;
+        }
+
+        console.log("▶️ Text aus Webflow-Formular:", text);
         sendToRNBO(text);
     });
 
-    console.log("Webflow-Formular erfolgreich mit RNBO verbunden!");
+    console.log("✅ Webflow-Formular erfolgreich mit RNBO verbunden!");
 }
 
 // Setup starten
