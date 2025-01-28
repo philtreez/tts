@@ -21,6 +21,7 @@ async function setup() {
         patcher = await response.json();
     
         if (!window.RNBO) {
+            console.log("📥 Lade RNBO...");
             await loadRNBOScript(patcher.desc.meta.rnboversion);
         }
 
@@ -30,11 +31,15 @@ async function setup() {
     }
 
     // RNBO-Gerät erstellen
-    window.device = await RNBO.createDevice({ context, patcher });
-    window.device.node.connect(outputNode);
-    console.log("✅ RNBO WebAudio erfolgreich geladen!");
+    try {
+        window.device = await RNBO.createDevice({ context, patcher });
+        window.device.node.connect(outputNode);
+        console.log("✅ RNBO WebAudio erfolgreich geladen!");
+    } catch (err) {
+        console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
+        return;
+    }
 
-    // Webflow-Formular mit RNBO verbinden
     setupWebflowForm();
 }
 
@@ -46,8 +51,14 @@ function loadRNBOScript(version) {
         }
         const el = document.createElement("script");
         el.src = `https://c74-public.nyc3.digitaloceanspaces.com/rnbo/${encodeURIComponent(version)}/rnbo.min.js`;
-        el.onload = resolve;
-        el.onerror = err => reject(new Error(`Fehler beim Laden von rnbo.js v${version}`));
+        el.onload = () => {
+            console.log("✅ RNBO.js erfolgreich geladen.");
+            resolve();
+        };
+        el.onerror = err => {
+            console.error("❌ Fehler beim Laden von rnbo.js:", err);
+            reject(new Error(`Fehler beim Laden von rnbo.js v${version}`));
+        };
         document.body.append(el);
     });
 }
@@ -62,16 +73,20 @@ async function textToSpeechParams(text) {
         if (pr[word]) {
             let phonemes = pr[word][0].split(" ");
             phonemes.forEach(ph => {
-                if (phonemeMap[ph]) {
+                if (phonemeMap.hasOwnProperty(ph)) {
                     speechParams.push(phonemeMap[ph]);
+                } else {
+                    console.warn(`⚠️ Unbekanntes Phonem: ${ph}`);
+                    speechParams.push(0); // Fallback zu Stille
                 }
             });
         } else {
-            speechParams.push(0); // Unbekannte Wörter -> Stille
+            console.warn(`⚠️ Unbekanntes Wort: ${word}`);
+            speechParams.push(0);
         }
     });
 
-    console.log("🔡 Phoneme generiert:", speechParams);
+    console.log("🔡 Generierte Speech-Werte:", speechParams);
     return speechParams;
 }
 
@@ -86,6 +101,10 @@ async function sendToRNBO(text) {
     console.log("📡 Sende Speech-Werte an RNBO:", speechValues);
 
     speechValues.forEach((value, index) => {
+        if (isNaN(value)) {
+            console.error(`❌ Ungültiger Speech-Wert: ${value}`);
+            return;
+        }
         setTimeout(() => {
             window.device.parameters.speech.value = value;
         }, index * 200);
@@ -94,8 +113,7 @@ async function sendToRNBO(text) {
 
 // Webflow-Formular automatisch erkennen & steuern
 function setupWebflowForm() {
-    const form = document.querySelector("[data-wf-form='TEXTFORM']");
-     // Automatische Erkennung
+    const form = document.querySelector("form");
     if (!form) {
         console.error("❌ Webflow-Formular nicht gefunden!");
         return;
@@ -110,9 +128,9 @@ function setupWebflowForm() {
     }
 
     submitButton.addEventListener("click", function(event) {
-        event.preventDefault(); // Webflow-Submit verhindern
-        const text = textInput.value;
-        if (text.trim() === "") {
+        event.preventDefault();
+        const text = textInput.value.trim();
+        if (!text) {
             console.warn("⚠️ Kein Text eingegeben!");
             return;
         }
