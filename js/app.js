@@ -179,7 +179,7 @@ async function sendToRNBO(device, text) {
         setTimeout(() => {
             console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
             speechParam.value = speechValue;
-        }, index * 300); // ⏳ 300ms Verzögerung pro Phonem
+        }, index * 100); // ⏳ 300ms Verzögerung pro Phonem
     });
 }
 
