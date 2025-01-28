@@ -1,16 +1,16 @@
 const patchExportURL = "https://tts-philtreezs-projects.vercel.app/export/patch.export.json";
+const dictionaryURL = "https://tts-philtreezs-projects.vercel.app/dictionary.json";
 
+// Lade das Wörterbuch von der JSON-Datei
 async function loadDictionary() {
     try {
-        const response = await fetch("https://tts-philtreezs-projects.vercel.app/dictionary.json");
-        if (!response.ok) throw new Error(`HTTP-Fehler! Status: ${response.status}`);
-        
+        const response = await fetch(dictionaryURL);
         const dictionary = await response.json();
-        console.log("📖 Wörterbuch erfolgreich geladen!", dictionary);
+        console.log("📖 Wörterbuch erfolgreich geladen:", dictionary);
         return dictionary;
     } catch (err) {
         console.error("❌ Fehler beim Laden des Wörterbuchs:", err);
-        return null;
+        return {};
     }
 }
 
@@ -115,18 +115,12 @@ function loadRNBOScript(version) {
     });
 }
 
-// Text zu Phoneme umwandeln
+// Text zu Phoneme umwandeln mit lokalem Wörterbuch
 async function textToSpeechParams(text) {
     try {
-        const pr = await import('https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm');
-        console.log("📖 Wörterbuch erfolgreich geladen:", pr);
-
-        // Neue Debug-Logs
-        console.log("🔍 Wörterbuch Struktur:", pr);
-        console.log("🔍 Enthält das Wörterbuch eine dictionary-Eigenschaft?", pr.dictionary);
-
-        if (!pr.dictionary) {
-            console.error("❌ Wörterbuch enthält keine `dictionary`-Daten!");
+        const dictionary = await loadDictionary();
+        if (!dictionary) {
+            console.error("❌ Wörterbuch ist leer!");
             return [];
         }
 
@@ -134,13 +128,14 @@ async function textToSpeechParams(text) {
         let speechParams = [];
 
         words.forEach(word => {
-            if (pr.dictionary[word]) { // Hier nutzen wir `dictionary`
-                let phonemes = pr.dictionary[word][0].split(" ");
+            if (dictionary[word]) { // Wörterbuch nutzen
+                let phonemes = dictionary[word].split(" ");
                 console.log(`🗣 Wort "${word}" → Phoneme:`, phonemes);
 
                 phonemes.forEach(ph => {
-                    if (phonemeMap.hasOwnProperty(ph)) {
-                        speechParams.push(phonemeMap[ph]);
+                    let speechValue = Object.keys(phonemeMap).find(key => phonemeMap[key] === ph);
+                    if (speechValue !== undefined) {
+                        speechParams.push(parseInt(speechValue));
                     } else {
                         console.warn(`⚠️ Unbekanntes Phonem: ${ph}`);
                         speechParams.push(0);
@@ -156,17 +151,7 @@ async function textToSpeechParams(text) {
         return speechParams;
 
     } catch (err) {
-        console.error("❌ Fehler beim Laden von cmu-pronouncing-dictionary:", err);
-        return [];
-    }
-}
-
-function textToPhonemes(text) {
-    text = text.toLowerCase();
-    if (phonemeDictionary[text]) {
-        return phonemeDictionary[text];
-    } else {
-        console.warn(`⚠️ Unbekanntes Wort: ${text} → Wörterbuch enthält es nicht!`);
+        console.error("❌ Fehler bei der Umwandlung von Text zu Phonemen:", err);
         return [];
     }
 }
@@ -186,11 +171,10 @@ async function sendToRNBO(device, text) {
         return;
     }
 
-    const phonemes = textToPhonemes(text); // Wandelt Text in ARPABET-Phoneme um
+    const phonemes = await textToSpeechParams(text); // Lade Phoneme basierend auf dem Wörterbuch
     console.log(`Wort "${text}" → Phoneme:`, phonemes);
 
-    phonemes.forEach((phoneme, index) => {
-        let speechValue = phonemeMap[phoneme] || 0; // Falls unbekannt, setze 0 (Stille)
+    phonemes.forEach((speechValue, index) => {
         setTimeout(() => {
             console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
             speechParam.value = speechValue;
