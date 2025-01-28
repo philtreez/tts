@@ -1,6 +1,6 @@
 const patchExportURL = "https://tts-philtreezs-projects.vercel.app/export/patch.export.json";
 
-import dictionary from 'https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm';
+import dictionary from "https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm";
 
 // Nutze das geladene Wörterbuch
 console.log("📖 Wörterbuch erfolgreich geladen:", dictionary);
