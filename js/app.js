@@ -183,6 +183,58 @@ async function sendToRNBO(device, text) {
     });
 }
 
+// Erstellt die 16 <div>-Elemente für die Visualisierung
+function createStepVisualization() {
+    const container = document.createElement("div");
+    container.id = "step16-visualizer";
+
+    for (let i = 0; i < 16; i++) {
+        const stepDiv = document.createElement("div");
+        stepDiv.classList.add("step16-box");
+        stepDiv.dataset.step = i; // Speichert die Schrittzahl als Attribut
+        container.appendChild(stepDiv);
+    }
+
+    document.body.appendChild(container);
+}
+
+// Aktualisiert die Visualisierung basierend auf dem RNBO-Parameter "step16"
+function updateStepVisualization(stepValue) {
+    const stepBoxes = document.querySelectorAll(".step16-box");
+    stepBoxes.forEach(box => {
+        if (parseInt(box.dataset.step) === stepValue) {
+            box.classList.add("visible");
+        } else {
+            box.classList.remove("visible");
+        }
+    });
+}
+
+// RNBO-Parameter-Abfrage
+async function watchStepParameter(device) {
+    if (!device) {
+        console.error("❌ RNBO nicht geladen!");
+        return;
+    }
+
+    const stepParam = device.parametersById.get("step16");
+
+    if (!stepParam) {
+        console.error("❌ RNBO-Parameter 'step16' existiert nicht! Überprüfe deinen RNBO-Patch.");
+        return;
+    }
+
+    stepParam.onValueChange = (value) => {
+        console.log(`🔄 RNBO-Parameter 'step16' geändert: ${value}`);
+        updateStepVisualization(value);
+    };
+}
+
+// Integration in den bestehenden Code
+createStepVisualization(); // Erstellt die Boxen beim Laden
+setup().then(device => watchStepParameter(device)); // Startet das Monitoring nach dem Setup
+
+
 // Webflow-Formular automatisch erkennen & steuern
 function setupWebflowForm(device) {
     const form = document.querySelector("#wf-form-TEXTFORM, [data-name='TEXTFORM']");
