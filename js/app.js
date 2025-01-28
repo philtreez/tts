@@ -88,8 +88,8 @@ async function setup() {
         // 🛠 Debug: Zeige ALLE verfügbaren Parameter
         console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
 
-        handleStep16Change(device);
         setupWebflowForm(device);
+        handleStep16Change(device);
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
         return;
