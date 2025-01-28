@@ -186,50 +186,34 @@ async function sendToRNBO(device, text) {
     });
 }
 
-// Erstellt die 16 <div>-Elemente für die Visualisierung
-function createStepVisualization() {
-    const container = document.createElement("div");
-    container.id = "step16-visualizer";
+// Funktion zum Aktualisieren der Sichtbarkeit der Divs basierend auf dem "step16"-Wert von RNBO
+function updateStep16Visualization(stepValue) {
+    // Alle Divs mit der Klasse "step16-box" holen
+    const stepDivs = document.querySelectorAll(".step16-box");
 
-    for (let i = 0; i < 16; i++) {
-        const stepDiv = document.createElement("div");
-        stepDiv.classList.add("step16-box");
-        stepDiv.dataset.step = i; // Speichert die Schrittzahl als Attribut
-        container.appendChild(stepDiv);
-    }
-
-    document.body.appendChild(container);
-}
-
-// Aktualisiert die Visualisierung basierend auf dem RNBO-Parameter "step16"
-function updateStepVisualization(stepValue) {
-    const stepBoxes = document.querySelectorAll(".step16-box");
-    stepBoxes.forEach(box => {
-        if (parseInt(box.dataset.step) === stepValue) {
-            box.classList.add("visible");
+    stepDivs.forEach(div => {
+        // Aktuelles Div prüfen: Hat es das passende data-step-Attribut?
+        if (div.getAttribute("data-step") === String(stepValue)) {
+            div.classList.add("visible"); // Sichtbar machen
         } else {
-            box.classList.remove("visible");
+            div.classList.remove("visible"); // Unsichtbar machen
         }
     });
 }
 
-// RNBO-Parameter-Abfrage
-async function watchStepParameter(device) {
-    if (!device) {
-        console.error("❌ RNBO nicht geladen!");
+// Funktion zum Empfangen des "step16"-Werts aus RNBO
+function handleStep16Change(device) {
+    const step16Param = device.parametersById.get("step16");
+
+    if (!step16Param) {
+        console.error("❌ RNBO-Parameter 'step16' nicht gefunden!");
         return;
     }
 
-    const stepParam = device.parametersById.get("step16");
-
-    if (!stepParam) {
-        console.error("❌ RNBO-Parameter 'step16' existiert nicht! Überprüfe deinen RNBO-Patch.");
-        return;
-    }
-
-    stepParam.onValueChange = (value) => {
-        console.log(`🔄 RNBO-Parameter 'step16' geändert: ${value}`);
-        updateStepVisualization(value);
+    // Falls sich der Parameter ändert, die Visualisierung aktualisieren
+    step16Param.onValueChange = (newValue) => {
+        console.log(`🎛 RNBO step16 geändert: ${newValue}`);
+        updateStep16Visualization(newValue);
     };
 }
 
