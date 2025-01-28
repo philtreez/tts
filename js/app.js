@@ -2,7 +2,9 @@ const patchExportURL = "https://tts-philtreezs-projects.vercel.app/export/patch.
 
 async function loadDictionary() {
     try {
-        const response = await fetch("https://tts-philtreezs-projects.vercel.app/cmu/dictionary.json");
+        const response = await fetch("https://tts-philtreezs-projects.vercel.app/dictionary.json");
+        if (!response.ok) throw new Error(`HTTP-Fehler! Status: ${response.status}`);
+        
         const dictionary = await response.json();
         console.log("📖 Wörterbuch erfolgreich geladen!", dictionary);
         return dictionary;
