@@ -11,6 +11,18 @@ const phonemeMap = {
     44: "Q", 45: "WH", 46: "NX", 47: "NG", 48: "HH", 49: "DX", 50: "EL", 51: "EM", 52: "EN"
 };
 
+const phonemeDictionary = {
+    0: "",      // Kein Sound
+    1: "AA",  2: "AE",  3: "AH",  4: "AO",  5: "AW",  6: "AX",  7: "AXR",  8: "AY",
+    9: "EH",  10: "ER", 11: "EY", 12: "IH", 13: "IX", 14: "IY", 15: "OW", 16: "OY",
+    17: "UH", 18: "UW", 19: "UX", 
+    20: "B", 21: "CH", 22: "D", 23: "DH", 24: "F", 25: "G", 26: "K", 27: "L",
+    28: "M", 29: "N", 30: "P", 31: "R", 32: "S", 33: "SH", 34: "T", 35: "TH",
+    36: "V", 37: "Z", 38: "ZH", 
+    39: "-", 40: "!", 41: "+", 42: "/", 43: "#", 
+    44: "Q", 45: "WH", 46: "NX", 47: "NG", 48: "HH", 49: "DX", 50: "EL", 51: "EM", 52: "EN"
+};
+
 async function setup() {
     console.log("🚀 app.js läuft!");
 
@@ -154,7 +166,7 @@ async function sendToRNBO(device, text) {
     console.log(`Wort "${text}" → Phoneme:`, phonemes);
 
     phonemes.forEach((phoneme, index) => {
-        let speechValue = Object.keys(phonemeMapping).find(key => phonemeMapping[key] === phoneme);
+        let speechValue = Object.keys(phonemeMap).find(key => phonemeMap[key] === phoneme);
         if (speechValue !== undefined) {
             setTimeout(() => {
                 console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
