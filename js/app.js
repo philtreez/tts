@@ -218,22 +218,19 @@ function setupWebflowForm(device) {
 // Setup starten
 setup();
 
-// Funktion zum Aktualisieren der Sichtbarkeit der Divs basierend auf dem "step16"-Wert von RNBO
 function updateStep16Visualization(stepValue) {
-    // Alle Divs mit der Klasse "step16-box" holen
     const stepDivs = document.querySelectorAll(".step16-box");
 
     stepDivs.forEach(div => {
-        // Aktuelles Div prüfen: Hat es das passende data-step-Attribut?
         if (div.getAttribute("data-step") === String(stepValue)) {
-            div.classList.add("visible"); // Sichtbar machen
+            console.log(`👀 Sichtbar: data-step="${div.getAttribute("data-step")}"`);
+            div.classList.add("visible"); // Sollte in Webflow sichtbar sein
         } else {
-            div.classList.remove("visible"); // Unsichtbar machen
+            div.classList.remove("visible");
         }
     });
 }
 
-// Funktion zum Empfangen des "step16"-Werts aus RNBO
 function handleStep16Change(device) {
     const step16Param = device.parametersById.get("step16");
 
@@ -242,9 +239,12 @@ function handleStep16Change(device) {
         return;
     }
 
-    // Falls sich der Parameter ändert, die Visualisierung aktualisieren
+    // Debugging: Loggt initialen Wert von step16
+    console.log("🔍 Startwert von step16:", step16Param.value);
+
+    // Event-Listener für Änderungen hinzufügen
     step16Param.onValueChange = (newValue) => {
-        console.log(`🎛 RNBO step16 geändert: ${newValue}`);
+        console.log(`🔄 RNBO step16 geändert: ${newValue}`);
         updateStep16Visualization(newValue);
     };
 }
