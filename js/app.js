@@ -14,12 +14,22 @@ async function setup() {
     const context = new WAContext();
     const outputNode = context.createGain();
     outputNode.connect(context.destination);
-    
+
+    // 🛠 Fix: AudioContext erst nach User-Interaktion starten (Chrome/Safari)
+    document.addEventListener("click", async function resumeAudioContext() {
+        if (context.state !== "running") {
+            await context.resume();
+            console.log("🔊 AudioContext wurde gestartet!");
+        }
+        document.removeEventListener("click", resumeAudioContext);
+    });
+
     let response, patcher;
     try {
         response = await fetch(patchExportURL);
         patcher = await response.json();
-    
+        console.log("📦 RNBO Patch erfolgreich geladen:", patcher);
+
         if (!window.RNBO) {
             console.log("📥 Lade RNBO...");
             await loadRNBOScript(patcher.desc.meta.rnboversion);
@@ -66,12 +76,16 @@ function loadRNBOScript(version) {
 // Text zu Phoneme umwandeln
 async function textToSpeechParams(text) {
     const pr = await import('https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm');
+    console.log("📖 Wörterbuch geladen:", pr);
+
     const words = text.toLowerCase().split(/\s+/);
     let speechParams = [];
 
     words.forEach(word => {
         if (pr[word]) {
             let phonemes = pr[word][0].split(" ");
+            console.log(`🗣 Wort "${word}" → Phoneme:`, phonemes);
+
             phonemes.forEach(ph => {
                 if (phonemeMap.hasOwnProperty(ph)) {
                     speechParams.push(phonemeMap[ph]);
@@ -106,6 +120,7 @@ async function sendToRNBO(text) {
             return;
         }
         setTimeout(() => {
+            console.log(`🎛 Setze RNBO-Parameter: speech = ${value}`);
             window.device.parameters.speech.value = value;
         }, index * 200);
     });
@@ -113,14 +128,15 @@ async function sendToRNBO(text) {
 
 // Webflow-Formular automatisch erkennen & steuern
 function setupWebflowForm() {
-    const form = document.querySelector("[data-wf-form='TEXTFORM']");
+    // Suche Formular mit ID "wf-form-TEXTFORM" oder data-name="TEXTFORM"
+    const form = document.querySelector("#wf-form-TEXTFORM, [data-name='TEXTFORM']");
     if (!form) {
-        console.error("❌ Webflow-Formular nicht gefunden!");
+        console.error("❌ Webflow-Formular nicht gefunden! Stelle sicher, dass die ID 'wf-form-TEXTFORM' existiert.");
         return;
     }
 
-    const textInput = form.querySelector("input");
-    const submitButton = form.querySelector("submit");
+    const textInput = form.querySelector("input[type='text']");
+    const submitButton = form.querySelector("input[type='submit'], button");
 
     if (!textInput || !submitButton) {
         console.error("❌ Textfeld oder Submit-Button nicht gefunden!");
