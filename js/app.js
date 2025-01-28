@@ -80,19 +80,21 @@ async function textToSpeechParams(text) {
         const pr = await import('https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm');
         console.log("📖 Wörterbuch erfolgreich geladen:", pr);
 
-        if (!pr || typeof pr !== "object") {
-            console.error("❌ Wörterbuch konnte nicht richtig geladen werden! Struktur:", pr);
+        // Neue Debug-Logs
+        console.log("🔍 Wörterbuch Struktur:", pr);
+        console.log("🔍 Enthält das Wörterbuch eine dictionary-Eigenschaft?", pr.dictionary);
+
+        if (!pr.dictionary) {
+            console.error("❌ Wörterbuch enthält keine `dictionary`-Daten!");
             return [];
         }
-
-        console.log("🔍 Test: Enthält das Wörterbuch 'hello'?", pr["hello"]);
 
         const words = text.toLowerCase().split(/\s+/);
         let speechParams = [];
 
         words.forEach(word => {
-            if (pr[word]) {
-                let phonemes = pr[word][0].split(" ");
+            if (pr.dictionary[word]) { // Hier nutzen wir `dictionary`
+                let phonemes = pr.dictionary[word][0].split(" ");
                 console.log(`🗣 Wort "${word}" → Phoneme:`, phonemes);
 
                 phonemes.forEach(ph => {
