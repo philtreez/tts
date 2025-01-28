@@ -1,4 +1,13 @@
 const patchExportURL = "https://tts-philtreezs-projects.vercel.app/export/patch.export.json";
+
+import dictionary from 'https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm';
+
+// Nutze das geladene Wörterbuch
+console.log("📖 Wörterbuch erfolgreich geladen:", dictionary);
+
+// Beispiel für einen Wörterbuch-Lookup
+console.log("Phoneme für 'hello':", dictionary["hello"]);
+
 const phonemeMap = {
     0: "",      // Kein Sound
     1: "AA",  2: "AE",  3: "AH",  4: "AO",  5: "AW",  6: "AX",  7: "AXR",  8: "AY",
@@ -12,15 +21,18 @@ const phonemeMap = {
 };
 
 const phonemeDictionary = {
-    0: "",      // Kein Sound
-    1: "AA",  2: "AE",  3: "AH",  4: "AO",  5: "AW",  6: "AX",  7: "AXR",  8: "AY",
-    9: "EH",  10: "ER", 11: "EY", 12: "IH", 13: "IX", 14: "IY", 15: "OW", 16: "OY",
-    17: "UH", 18: "UW", 19: "UX", 
-    20: "B", 21: "CH", 22: "D", 23: "DH", 24: "F", 25: "G", 26: "K", 27: "L",
-    28: "M", 29: "N", 30: "P", 31: "R", 32: "S", 33: "SH", 34: "T", 35: "TH",
-    36: "V", 37: "Z", 38: "ZH", 
-    39: "-", 40: "!", 41: "+", 42: "/", 43: "#", 
-    44: "Q", 45: "WH", 46: "NX", 47: "NG", 48: "HH", 49: "DX", 50: "EL", 51: "EM", 52: "EN"
+    "hello": ["HH", "AH", "L", "OW"],
+    "rise": ["R", "AY", "Z"],
+    "super": ["S", "UW", "P", "ER"],
+    "my": ["M", "AY"],
+    "test": ["T", "EH", "S", "T"],
+    "world": ["W", "ER", "L", "D"],
+    "good": ["G", "UH", "D"],
+    "morning": ["M", "AO", "R", "N", "IH", "NG"],
+    "computer": ["K", "AH", "M", "P", "Y", "UW", "T", "ER"],
+    "phoneme": ["F", "OW", "N", "IY", "M"],
+    "speech": ["S", "P", "IY", "CH"],
+    // Weitere Wörter nach Bedarf hinzufügen
 };
 
 async function setup() {
@@ -139,8 +151,8 @@ async function textToSpeechParams(text) {
 
 function textToPhonemes(text) {
     text = text.toLowerCase();
-    if (phonemeMap[text]) {
-        return phonemeMap[text];
+    if (phonemeDictionary[text]) {
+        return phonemeDictionary[text];
     } else {
         console.warn(`⚠️ Unbekanntes Wort: ${text} → Wörterbuch enthält es nicht!`);
         return [];
@@ -166,15 +178,11 @@ async function sendToRNBO(device, text) {
     console.log(`Wort "${text}" → Phoneme:`, phonemes);
 
     phonemes.forEach((phoneme, index) => {
-        let speechValue = Object.keys(phonemeMap).find(key => phonemeMap[key] === phoneme);
-        if (speechValue !== undefined) {
-            setTimeout(() => {
-                console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
-                speechParam.value = parseInt(speechValue);
-            }, index * 300); // ⏳ 300ms Verzögerung pro Phonem
-        } else {
-            console.warn(`⚠️ Unbekanntes Phonem: ${phoneme}`);
-        }
+        let speechValue = phonemeMap[phoneme] || 0; // Falls unbekannt, setze 0 (Stille)
+        setTimeout(() => {
+            console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
+            speechParam.value = speechValue;
+        }, index * 300); // ⏳ 300ms Verzögerung pro Phonem
     });
 }
 
