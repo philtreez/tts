@@ -2,7 +2,8 @@ const patchExportURL = "https://tts-philtreezs-projects.vercel.app/export/patch.
 
 async function loadDictionary() {
     try {
-        const { dictionary } = await import('https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm');
+        const response = await fetch("https://tts-philtreezs-projects.vercel.app/cmu/dictionary.json");
+        const dictionary = await response.json();
         console.log("📖 Wörterbuch erfolgreich geladen!", dictionary);
         return dictionary;
     } catch (err) {
@@ -10,6 +11,11 @@ async function loadDictionary() {
         return null;
     }
 }
+
+// Nutzung:
+loadDictionary().then(dictionary => {
+    console.log("Phoneme für 'hello':", dictionary["hello"]);
+});
 
 const phonemeMap = {
     0: "",      // Kein Sound
