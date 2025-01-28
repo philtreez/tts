@@ -1,9 +1,14 @@
 const patchExportURL = "https://tts-philtreezs-projects.vercel.app/export/patch.export.json";
 const phonemeMap = {
-  "AA": 1, "AE": 2, "AH": 3, "AO": 4, "EH": 5, "ER": 6, "IH": 7, "IY": 8,
-  "UH": 9, "UW": 10, "B": 11, "D": 12, "F": 13, "G": 14, "K": 15, "L": 16,
-  "M": 17, "N": 18, "P": 19, "R": 20, "S": 21, "T": 22, "V": 23, "Z": 24,
-  "AW": 25, "AY": 26, "CH": 27, "SH": 28, "TH": 29, "OW": 30
+    0: "",      // Kein Sound
+    1: "AA",  2: "AE",  3: "AH",  4: "AO",  5: "AW",  6: "AX",  7: "AXR",  8: "AY",
+    9: "EH",  10: "ER", 11: "EY", 12: "IH", 13: "IX", 14: "IY", 15: "OW", 16: "OY",
+    17: "UH", 18: "UW", 19: "UX", 
+    20: "B", 21: "CH", 22: "D", 23: "DH", 24: "F", 25: "G", 26: "K", 27: "L",
+    28: "M", 29: "N", 30: "P", 31: "R", 32: "S", 33: "SH", 34: "T", 35: "TH",
+    36: "V", 37: "Z", 38: "ZH", 
+    39: "-", 40: "!", 41: "+", 42: "/", 43: "#", 
+    44: "Q", 45: "WH", 46: "NX", 47: "NG", 48: "HH", 49: "DX", 50: "EL", 51: "EM", 52: "EN"
 };
 
 async function setup() {
@@ -135,18 +140,19 @@ async function sendToRNBO(device, text) {
         return;
     }
 
-    const speechValues = await textToSpeechParams(text);
-    console.log("📡 Sende Speech-Werte an RNBO:", speechValues);
+    const phonemes = textToPhonemes(text); // Wandelt Text in ARPABET-Phoneme um
+    console.log(`Wort "${text}" → Phoneme:`, phonemes);
 
-    speechValues.forEach((value, index) => {
-        if (isNaN(value)) {
-            console.error(`❌ Ungültiger Speech-Wert: ${value}`);
-            return;
+    phonemes.forEach((phoneme, index) => {
+        let speechValue = Object.keys(phonemeMapping).find(key => phonemeMapping[key] === phoneme);
+        if (speechValue !== undefined) {
+            setTimeout(() => {
+                console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
+                speechParam.value = parseInt(speechValue);
+            }, index * 300); // ⏳ 300ms Verzögerung pro Phonem
+        } else {
+            console.warn(`⚠️ Unbekanntes Phonem: ${phoneme}`);
         }
-        setTimeout(() => {
-            console.log(`🎛 Setze RNBO-Parameter: speech = ${value}`);
-            speechParam.value = value;
-        }, index * 300); // ⏳ 300ms Verzögerung pro Phonem
     });
 }
 
