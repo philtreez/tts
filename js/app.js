@@ -113,14 +113,14 @@ async function sendToRNBO(text) {
 
 // Webflow-Formular automatisch erkennen & steuern
 function setupWebflowForm() {
-    const form = document.querySelector("form");
+    const form = document.querySelector("[data-wf-form='TEXTFORM']");
     if (!form) {
         console.error("❌ Webflow-Formular nicht gefunden!");
         return;
     }
 
     const textInput = form.querySelector("input");
-    const submitButton = form.querySelector("button");
+    const submitButton = form.querySelector("submit");
 
     if (!textInput || !submitButton) {
         console.error("❌ Textfeld oder Submit-Button nicht gefunden!");
