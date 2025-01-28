@@ -1,4 +1,4 @@
-const patchExportURL = "https://vercel.com/philtreezs-projects/tts/export/patch.export.json";
+const patchExportURL = "https://tts-philtreezs-projects.vercel.app/export/patch.export.json";
 const phonemeMap = {
   "AA": 1, "AE": 2, "AH": 3, "AO": 4, "EH": 5, "ER": 6, "IH": 7, "IY": 8,
   "UH": 9, "UW": 10, "B": 11, "D": 12, "F": 13, "G": 14, "K": 15, "L": 16,
