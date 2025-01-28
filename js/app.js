@@ -14,10 +14,10 @@ async function loadDictionary() {
     }
 }
 
-// Nutzung:
-loadDictionary().then(dictionary => {
-    console.log("Phoneme für 'hello':", dictionary["hello"]);
-});
+// Entferne Stress-Index von Phonemen (z. B. "AH0" → "AH")
+function cleanPhoneme(phoneme) {
+    return phoneme.replace(/[0-9]/g, ""); // Entfernt alle Ziffern aus dem Phonem
+}
 
 const phonemeMap = {
     0: "",      // Kein Sound
@@ -28,7 +28,7 @@ const phonemeMap = {
     28: "M", 29: "N", 30: "P", 31: "R", 32: "S", 33: "SH", 34: "T", 35: "TH",
     36: "V", 37: "Z", 38: "ZH", 
     39: "-", 40: "!", 41: "+", 42: "/", 43: "#", 
-    44: "Q", 45: "WH", 46: "NX", 47: "NG", 48: "HH", 49: "DX", 50: "EL", 51: "EM", 52: "EN"
+    44: "Q", 45: "WH", 46: "NX", 47: "NG", 48: "HH", 49: "DX", 50: "EL", 51: "EM", 52: "EN", 53: "H", 54: "W", 55: "Y"
 };
 
 const phonemeDictionary = {
@@ -130,14 +130,15 @@ async function textToSpeechParams(text) {
         words.forEach(word => {
             if (dictionary[word]) { // Wörterbuch nutzen
                 let phonemes = dictionary[word].split(" ");
-                console.log(`🗣 Wort "${word}" → Phoneme:`, phonemes);
+                console.log(`🗣 Wort "${word}" → Phoneme (vor Cleanup):`, phonemes);
 
                 phonemes.forEach(ph => {
-                    let speechValue = Object.keys(phonemeMap).find(key => phonemeMap[key] === ph);
+                    let cleanedPhoneme = cleanPhoneme(ph); // Entferne den Stress-Index
+                    let speechValue = Object.keys(phonemeMap).find(key => phonemeMap[key] === cleanedPhoneme);
                     if (speechValue !== undefined) {
                         speechParams.push(parseInt(speechValue));
                     } else {
-                        console.warn(`⚠️ Unbekanntes Phonem: ${ph}`);
+                        console.warn(`⚠️ Unbekanntes Phonem: ${cleanedPhoneme}`);
                         speechParams.push(0);
                     }
                 });
