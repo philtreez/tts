@@ -125,6 +125,16 @@ async function textToSpeechParams(text) {
     }
 }
 
+function textToPhonemes(text) {
+    text = text.toLowerCase();
+    if (phonemeDictionary[text]) {
+        return phonemeDictionary[text];
+    } else {
+        console.warn(`⚠️ Unbekanntes Wort: ${text} → Wörterbuch enthält es nicht!`);
+        return [];
+    }
+}
+
 // Werte an RNBO senden (Jetzt mit `device`)
 async function sendToRNBO(device, text) {
     if (!device) {
