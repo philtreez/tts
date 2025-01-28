@@ -73,16 +73,17 @@ function loadRNBOScript(version) {
     });
 }
 
-// Text zu Phoneme umwandeln
 async function textToSpeechParams(text) {
     try {
         const pr = await import('https://cdn.jsdelivr.net/npm/cmu-pronouncing-dictionary@latest/+esm');
         console.log("📖 Wörterbuch erfolgreich geladen:", pr);
 
-        if (!pr) {
-            console.error("❌ Wörterbuch konnte nicht geladen werden!");
+        if (!pr || typeof pr !== "object") {
+            console.error("❌ Wörterbuch konnte nicht richtig geladen werden! Struktur:", pr);
             return [];
         }
+
+        console.log("🔍 Test: Enthält das Wörterbuch 'hello'?", pr["hello"]);
 
         const words = text.toLowerCase().split(/\s+/);
         let speechParams = [];
@@ -101,7 +102,7 @@ async function textToSpeechParams(text) {
                     }
                 });
             } else {
-                console.warn(`⚠️ Unbekanntes Wort: ${word} → Prüfe cmu-pronouncing-dictionary!`);
+                console.warn(`⚠️ Unbekanntes Wort: ${word} → Wörterbuch enthält es nicht!`);
                 speechParams.push(0);
             }
         });
@@ -115,10 +116,18 @@ async function textToSpeechParams(text) {
     }
 }
 
+
 // Werte an RNBO senden
 async function sendToRNBO(text) {
     if (!window.device) {
         console.error("❌ RNBO nicht geladen!");
+        return;
+    }
+
+    console.log("📡 Verfügbare RNBO-Parameter:", window.device.parameters);
+
+    if (!window.device.parameters || !window.device.parameters.speech) {
+        console.error("❌ RNBO-Parameter 'speech' existiert nicht! Überprüfe deinen RNBO-Patch.");
         return;
     }
 
