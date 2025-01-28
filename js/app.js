@@ -215,9 +215,6 @@ function setupWebflowForm(device) {
     console.log("✅ Webflow-Formular erfolgreich mit RNBO verbunden!");
 }
 
-// Setup starten
-setup();
-
 function updateStep16Visualization(stepValue) {
     const stepDivs = document.querySelectorAll(".step16-box");
 
@@ -248,3 +245,6 @@ function handleStep16Change(device) {
         updateStep16Visualization(newValue);
     };
 }
+
+// Setup starten
+setup();
