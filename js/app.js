@@ -88,9 +88,7 @@ async function setup() {
         // 🛠 Debug: Zeige ALLE verfügbaren Parameter
         console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
 
-        // Integration in den bestehenden Code
-        createStepVisualization(); // Erstellt die Boxen beim Laden
-        setup().then(device => watchStepParameter(device)); // Startet das Monitoring nach dem Setup
+        handleStep16Change(device);
         setupWebflowForm(device);
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
