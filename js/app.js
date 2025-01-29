@@ -322,7 +322,7 @@ async function sendTextToRNBO(device, text, isChat = true) {
         setTimeout(() => {
             console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
             speechParam.value = speechValue;
-        }, index * 100); // 200ms Verzögerung pro Phonem
+        }, index * 150); // 200ms Verzögerung pro Phonem
     });
 
     device.node.connect(context.destination);
