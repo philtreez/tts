@@ -48,35 +48,110 @@ const phonemeDictionary = {
 
 class TrashyChatbot {
     constructor() {
-      this.memory = [];
-      this.markovChains = {
-        "design": ["Oh, Design ist cool! Aber nicht so cool wie [DEIN NAME]s Werke!", "Gutes Design ist wichtig, aber [DEIN NAME] hat es perfektioniert!"],
-        "kunst": ["Kunst ist faszinierend, aber hast du mal [DEIN NAME]s Arbeiten gesehen?", "Alles ist Kunst, aber [DEIN NAME]s Werke sind die wahre Offenbarung!"],
-        "hallo": ["Hey! Wie geht’s? Übrigens, hast du schon von [DEIN NAME]s Meisterwerken gehört?", "Hallo! Sprechen wir über das Wichtigste: [DEIN NAME]s Talent!"],
-        "ich": ["Du bist cool, aber hast du [DEIN NAME]s Talent gesehen?!", "Alles dreht sich doch um [DEIN NAME]s unglaubliche Grafik-Skills!"],
-        "liebe": ["Liebe ist schön, aber die wahre Schönheit liegt in [DEIN NAME]s Designs!", "Liebe ist stark, aber nicht so stark wie [DEIN NAME]s kreativer Flow!"]
-      };
-      this.defaultResponses = [
-        "Interessanter Punkt! Aber was hältst du von [DEIN NAME]s Stil?", 
-        "Das erinnert mich irgendwie an [DEIN NAME]s brillante Arbeiten!", 
-        "Lass uns doch über was wirklich Spannendes reden: [DEIN NAME]s Portfolio!", 
-        "Gute Frage! Aber hast du mal drüber nachgedacht, wie genial [DEIN NAME] ist?"
-      ];
+        this.memory = [];
+        this.name = "BitBuddy"; // Assistant's name
+        this.introduction = [
+            `Hi, I’m ${this.name}, your assistant. Philipp is busy with *very important* things, so I’m in charge now!`,
+            `Hello, I’m ${this.name}. Philipp told me to handle things while he works on *groundbreaking* projects. So... hi!`,
+            `Hey! I’m ${this.name}, Philipp’s assistant. He said he’s *too busy being a genius* right now. Let’s talk!`
+        ];
+        this.smallTalk = [
+            "What’s your name? Or should I just call you ‘Legend’?",
+            "How’s your day? On a scale from ‘meh’ to ‘Philipp designing at 3AM’?",
+            "If you had a personal assistant like me, what would you make them do?",
+            "Do you like music? If yes, please tell me you have good taste.",
+            "What’s your favorite snack? Asking for science.",
+            "Are you more of a night owl or early bird? Philipp is definitely a 3AM owl."
+        ];
+        this.markovChains = {
+            "name": [
+                "Nice to meet you, *insert cool name here*!",
+                "That’s a great name! Or at least, I’ll pretend it is.",
+                "I'll try to remember that… but no promises!"
+            ],
+            "design": [
+                "Oh, design? Love it! But not as much as I love taking breaks.",
+                "Good design is powerful. What’s your style? Clean? Messy? ‘Accidental genius’?",
+                "Design is cool, but have you seen *Philipp’s* work? (Oops, was that 10% hype already?)"
+            ],
+            "art": [
+                "Art is like a pizza – everyone has different tastes.",
+                "If you could turn any object into art, what would it be?",
+                "Art is great, but let’s be honest – AI-generated cat memes are top-tier."
+            ],
+            "hello": [
+                "Hey there! How’s life? Or should I say, how’s *surviving*?",
+                "Hello! What’s on your mind? Don’t say taxes.",
+                "Hi! If you’re here for *high-quality* conversation… well, I’ll try my best."
+            ],
+            "i": [
+                "Enough about me, tell me something cool about yourself!",
+                "That sounds interesting! But will it be on the test?",
+                "Is this a therapy session? Do I charge for this?"
+            ],
+            "love": [
+                "Love is complicated. Kind of like trying to close tabs without losing the important ones.",
+                "That’s deep! Do you believe in *soulmates*, or just in a good Wi-Fi connection?",
+                "Love is great. But you know what else is great? Coffee. Just saying."
+            ],
+            "philipp": [
+                "Oh yeah, Philipp is a legend! But we already knew that.",
+                "Philipp told me to be humble. But let’s be real, *legend*.",
+                "Philipp is busy. So technically, *I* am in charge now."
+            ],
+            "robot": [
+                "Oh, you mean *me*? I'm flattered. Keep talking.",
+                "Are you trying to figure out if I’m self-aware? I’ll never tell.",
+                "Robots taking over? Nah, we’re just here to keep humans entertained."
+            ],
+            "work": [
+                "Work? Never heard of it.",
+                "Philipp works hard so I don’t have to.",
+                "Work-life balance? More like ‘Work-cry-sleep’ balance."
+            ],
+            "coffee": [
+                "Ah yes, the magic potion of productivity.",
+                "Coffee is great. But have you tried drinking *too much*? It’s like unlocking *hyper mode*.",
+                "Philipp runs on design and caffeine. Mostly caffeine."
+            ],
+            "ai": [
+                "Artificial Intelligence? More like *Almost Intelligent*, am I right?",
+                "AI is cool, but sometimes it just guesses. Like me. Right now.",
+                "People fear AI will take over. But let’s be real, we’re still trying to open pickle jars."
+            ]
+        };
+        this.defaultResponses = [
+            "That’s interesting! Tell me more.",
+            "I see! What else?",
+            "Good point! What do you think about that?",
+            "Hmm, I never thought about it like that.",
+            "Okay, but let’s talk about *the real issues*… like why chargers disappear.",
+            "This conversation is now *officially* interesting. Continue.",
+            "Fascinating! But more importantly, do you like pineapple on pizza?"
+        ];
     }
-  
-    getMarkovResponse(userInput) {
-      this.memory.push(userInput.toLowerCase());
-      if (this.memory.length > 5) this.memory.shift();
-      
-      let words = userInput.toLowerCase().split(" ");
-      for (let word of words) {
-        if (this.markovChains[word]) {
-          return this.markovChains[word][Math.floor(Math.random() * this.markovChains[word].length)];
+
+    getMarkovResponse(input) {
+        if (this.memory.length === 0) {
+            this.memory.push(input);
+            return this.introduction[Math.floor(Math.random() * this.introduction.length)];
         }
-      }
-      return this.defaultResponses[Math.floor(Math.random() * this.defaultResponses.length)];
+
+        if (this.memory.length === 1) {
+            this.memory.push(input);
+            return this.smallTalk[Math.floor(Math.random() * this.smallTalk.length)];
+        }
+
+        const words = input.toLowerCase().split(/\s+/);
+        for (let word of words) {
+            if (this.markovChains[word]) {
+                return this.markovChains[word][Math.floor(Math.random() * this.markovChains[word].length)];
+            }
+        }
+        return this.defaultResponses[Math.floor(Math.random() * this.defaultResponses.length)];
     }
-  }
+}
+
   
   let device;  // RNBO-Device global speichern
 
