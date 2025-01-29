@@ -220,7 +220,6 @@ function handleLiChange(device) {
     };
 }
 
-
 function updateLiVisual(activeLi) {
     for (let i = 0; i < 16; i++) {
         const liElement = document.querySelector(`[data-step="${i}"]`);
@@ -229,6 +228,12 @@ function updateLiVisual(activeLi) {
         }
     }
 }
+
+setInterval(() => {
+    console.log("🔄 Li-Wert aktualisieren:", liParam.value);
+    updateLiVisual(liParam.value);
+}, 500); // Alle 500ms checken
+
 
 // Lade RNBO-Skript dynamisch
 function loadRNBOScript(version) {
