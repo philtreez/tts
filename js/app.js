@@ -231,7 +231,7 @@ function setupChatbotWithTTS(device) {
                 chatOutput.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
 
                 console.log("📢 Chatbot sendet an RNBO:", botResponse);
-                sendTextToRNBO(device, botResponse, true); // Chatbot-Antwort an RNBO schicken
+                sendTextToRNBO(device, botResponse);
 
             }, 500);
             userInput.innerText = "";
