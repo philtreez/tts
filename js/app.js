@@ -139,6 +139,41 @@ class TrashyChatbot {
                 "Oh, you want a weather report? Look out the window!",
                 "Hot? Cold? Rainy? Probably just *weather*.",
                 "If it's bad, blame global warming. If it's good, you’re welcome!"
+            ],
+            "nothing": [
+                "Oh wow, deep silence. Love it.",
+                "You just said nothing. Bold move.",
+                "Ah, the sound of existential dread. Or maybe you just hit enter too soon."
+            ],
+            "funny": [
+                "Oh, you think *I* am funny? That’s flattering!",
+                "Humor is great, but have you ever seen a cat fall off a table?",
+                "You laugh, but deep down we both know I’m the funniest here."
+            ],
+            "think": [
+                "That’s deep. Should I pretend to be wise now?",
+                "Thinking is overrated. Just trust your gut.",
+                "A wise bot once said… wait, let me Google it."
+            ],
+            "hmm": [
+                "Hmm… interesting… or not. I haven’t decided.",
+                "That’s a *hmm* moment if I’ve ever seen one.",
+                "I’m processing that… just kidding, I have no idea."
+            ],
+            "ok": [
+                "Okay. That was productive.",
+                "Cool. Cool cool cool.",
+                "Nice. Let’s pretend this was a deep moment."
+            ],
+            "don’t": [
+                "Don’t do it. Unless it’s hilarious.",
+                "That sounds like a *bad* idea. Or a *great* one.",
+                "I wouldn’t recommend it. But I also love chaos."
+            ],
+            "do": [
+                "Do it! No regrets. Probably.",
+                "YES. Full send. Go for it.",
+                "I support this. Unless it’s illegal."
             ]
         };
 
