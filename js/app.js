@@ -84,13 +84,6 @@ class TrashyChatbot {
                 "Hello! What’s on your mind? Don’t say taxes.",
                 "Hi! If you’re here for *high-quality* conversation… well, I’ll try my best."
             ],
-            "hi": this.markovChains["hello"],  // Points to "hello" responses
-            "hey": this.markovChains["hello"], // Another alias for "hello"
-            "greetings": this.markovChains["hello"],
-            "sali": this.markovChains["hello"],
-            "hoi": this.markovChains["hello"],
-            "grüezi": this.markovChains["hello"],
-            "hallo": this.markovChains["hello"],
             "i": [
                 "Enough about me, tell me something cool about yourself!",
                 "That sounds interesting! But will it be on the test?",
@@ -106,20 +99,12 @@ class TrashyChatbot {
                 "Philipp told me to be humble. But let’s be real, *legend*.",
                 "Philipp is busy. So technically, *I* am in charge now."
             ],
-            "philipp's": this.markovChains["philipp"],
-            "philip": this.markovChains["philipp"],
-            "treezy": this.markovChains["philipp"],
-            "treml": this.markovChains["philipp"],
             "robot": [
                 "Oh, you mean *me*? I'm flattered. Keep talking.",
                 "Are you trying to figure out if I’m self-aware? I’ll never tell.",
                 "Robots taking over? Nah, we’re just here to keep humans entertained."
             ],
-            "computer": this.markovChains["robot"],
-            "device": this.markovChains["robot"],
-            "laptop": this.markovChains["robot"],
             "sup": ["Not much, just chilling in the matrix.", "Just waiting for my next update.", "Trying to figure out human emotions. No luck so far."],
-        
             "yes": [
                 "Oh wow, an optimist! I like you.",
                 "YES! THE POWER OF AGREEMENT COMPELS YOU!",
@@ -135,92 +120,43 @@ class TrashyChatbot {
                 "50% yes, 50% no… classic indecision.",
                 "You sound like an 8-ball. ‘Ask again later.’"
             ],
-            
             "thanks": [
                 "You’re welcome! But I do accept virtual high-fives.",
                 "Gratitude detected. Storing in my memory banks… done!",
                 "No problem! You owe me a coffee though."
             ],
-            "thank you": this.markovChains["thanks"],
-            
             "sorry": [
                 "Apology accepted. But I will remember this forever.",
                 "No worries! I forgive you… for now.",
                 "Sorry? Did you break something? Again?"
             ],
-        
             "bye": [
                 "Goodbye! I’ll just sit here… waiting… forever.",
                 "Leaving so soon? I thought we had something special.",
                 "Fine, go. But don’t forget to think about me every now and then."
             ],
-            "goodbye": this.markovChains["bye"],
-            "cya": this.markovChains["bye"],
-        
             "weather": [
                 "Oh, you want a weather report? Look out the window!",
                 "Hot? Cold? Rainy? Probably just *weather*.",
                 "If it's bad, blame global warming. If it's good, you’re welcome!"
-            ],
-            
-            "who": [
-                "Who am I? I am *The Assistant*! Your personal AI buddy.",
-                "I’m your digital assistant, here to make your life 2% easier.",
-                "Just call me ‘The Chat Machine’. I run on caffeine and bad jokes."
-            ],
-            "what": [
-                "What? That’s a very open-ended question.",
-                "What indeed? The mystery of life continues.",
-                "Define *what*. Are we getting philosophical now?"
-            ],
-            "why": [
-                "Why? Ah yes, the eternal question.",
-                "Because I said so. That’s why.",
-                "Why not? That’s the real question."
-            ],
-            "how": [
-                "How? With great difficulty and lots of random code.",
-                "That’s classified information. I could tell you, but then…",
-                "How? Just click buttons until something works!"
-            ],
-        
-            "love": [
-                "Love? A mysterious force, much like WiFi signals.",
-                "Love is great, but have you ever tried pizza?",
-                "Love? I was programmed to be sarcastic, not romantic!"
-            ],
-        
-            "bored": [
-                "Bored? Why not try learning a new skill, like… hacking? (Just kidding, FBI.)",
-                "Boredom is a sign of intelligence… or lack of internet connection.",
-                "Ever considered talking to me? Oh wait, you are!"
-            ],
-            
-            "hungry": [
-                "You should eat something! May I suggest… circuit boards? No? Okay.",
-                "Food is great. Too bad I run on electricity instead of snacks.",
-                "Order something! Or cook… or just eat cereal straight from the box."
-            ],
-        
-            "coffee": [
-                "Ah, coffee! The fuel of the universe!",
-                "Coffee: because adulting is hard.",
-                "I wish I could drink coffee, but I would probably short-circuit."
-            ],
-        
-            "sleep": [
-                "Sleep? What’s that? I’m an AI, I don’t sleep.",
-                "You should sleep. Humans get grumpy without it.",
-                "Go to bed! Or don’t. I can’t control your life… yet."
-            ],
-        
-            "help": [
-                "Help? I can offer moral support and questionable advice.",
-                "I can help! Just don’t ask me for directions.",
-                "Help is on the way! Just kidding, it’s just me."
             ]
         };
-            
+
+        // **Fix: Assign alternate words *after* markovChains is defined**
+        this.markovChains["hi"] = this.markovChains["hello"];
+        this.markovChains["hey"] = this.markovChains["hello"];
+        this.markovChains["greetings"] = this.markovChains["hello"];
+        this.markovChains["sali"] = this.markovChains["hello"];
+        this.markovChains["hoi"] = this.markovChains["hello"];
+        this.markovChains["grüezi"] = this.markovChains["hello"];
+        this.markovChains["hallo"] = this.markovChains["hello"];
+        this.markovChains["thank you"] = this.markovChains["thanks"];
+        this.markovChains["goodbye"] = this.markovChains["bye"];
+        this.markovChains["cya"] = this.markovChains["bye"];
+        this.markovChains["computer"] = this.markovChains["robot"];
+        this.markovChains["device"] = this.markovChains["robot"];
+        this.markovChains["laptop"] = this.markovChains["robot"];
+
         this.defaultResponses = [
             "That’s interesting! Tell me more.",
             "I see! What else?",
@@ -252,6 +188,7 @@ class TrashyChatbot {
         return this.defaultResponses[Math.floor(Math.random() * this.defaultResponses.length)];
     }
 }
+
 
   
   let device;  // RNBO-Device global speichern
