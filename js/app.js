@@ -192,58 +192,33 @@ async function textToSpeechParams(text) {
     }
 }
 
-    async function sendToRNBO(device, text) {
-        if (!device) {
-            console.error("❌ RNBO nicht geladen!");
-            return;
-        }
-
-        const speechParam = device.parametersById.get("speech");
-
-        if (!speechParam) {
-            console.error("❌ RNBO-Parameter 'speech' existiert nicht! Verfügbare Parameter:", device.parametersById);
-            return;
-        }
-
-        const phonemes = await textToSpeechParams(text); // Lade Phoneme basierend auf Wörterbuch
-        console.log(`🗣 Wort "${text}" → Phoneme:`, phonemes);
-
-        phonemes.forEach((speechValue, index) => {
-            setTimeout(() => {
-                console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
-                speechParam.value = speechValue;
-            }, index * 200); // 200ms Verzögerung pro Phonem
-        });
-
-        // 🔥 Sicherstellen, dass RNBO mit dem Audio-Output verbunden ist
-        device.node.connect(context.destination);
+async function sendTextToRNBO(device, text, isChat = false) {
+    if (!device) {
+        console.error("❌ RNBO nicht geladen!");
+        return;
     }
 
-
-    async function sendChatToSpeech(device, text) {
-        if (!device) {
-            console.error("❌ RNBO nicht geladen!");
-            return;
-        }
-
-        console.log("🎤 Chatbot-Antwort zu TTS: ", text);
-        const phonemes = await textToSpeechParams(text); // Umwandlung in Phoneme
-        console.log(`📢 Generierte Phoneme für "${text}":`, phonemes);
-
-        // Werte an RNBO senden
-        const speechParam = device.parametersById.get("speech");
-        if (!speechParam) {
-            console.error("❌ RNBO-Parameter 'speech' existiert nicht! Überprüfe deinen RNBO-Patch.");
-            return;
-        }
-
-        phonemes.forEach((speechValue, index) => {
-            setTimeout(() => {
-                console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
-                speechParam.value = speechValue;
-            }, index * 200); // 200ms Verzögerung pro Phonem
-        });
+    const speechParam = device.parametersById.get("speech");
+    if (!speechParam) {
+        console.error("❌ RNBO-Parameter 'speech' existiert nicht! Überprüfe deinen RNBO-Patch.");
+        return;
     }
+
+    console.log(isChat ? `💬 Chatbot-Antwort zu TTS: ${text}` : `📢 Sende Text zu RNBO: ${text}`);
+
+    const phonemes = await textToSpeechParams(text);
+    console.log(`🗣 Generierte Phoneme für "${text}":`, phonemes);
+
+    phonemes.forEach((speechValue, index) => {
+        setTimeout(() => {
+            console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
+            speechParam.value = speechValue;
+        }, index * 200); // 200ms Verzögerung pro Phonem
+    });
+
+    device.node.connect(context.destination);
+}
+
 
     // Chatbot in TTS integrieren
     function setupChatbotWithTTS(device) {
@@ -259,7 +234,7 @@ async function textToSpeechParams(text) {
             setTimeout(() => {
             const botResponse = chatbot.getMarkovResponse(userText);
             chatOutput.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
-            sendChatToSpeech(device, botResponse); // 🟢 Text an TTS senden
+            sendTextToRNBO(device, botResponse, true);
             }, 500);
             userInput.innerText = "";
         }
