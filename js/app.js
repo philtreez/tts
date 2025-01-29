@@ -191,31 +191,33 @@ async function textToSpeechParams(text) {
     }
 }
 
-// Werte an RNBO senden (Jetzt mit `device`)
-async function sendToRNBO(device, text) {
-    if (!device) {
-        console.error("❌ RNBO nicht geladen!");
-        return;
+    async function sendToRNBO(device, text) {
+        if (!device) {
+            console.error("❌ RNBO nicht geladen!");
+            return;
+        }
+
+        const speechParam = device.parametersById.get("speech");
+
+        if (!speechParam) {
+            console.error("❌ RNBO-Parameter 'speech' existiert nicht! Verfügbare Parameter:", device.parametersById);
+            return;
+        }
+
+        const phonemes = await textToSpeechParams(text); // Lade Phoneme basierend auf Wörterbuch
+        console.log(`🗣 Wort "${text}" → Phoneme:`, phonemes);
+
+        phonemes.forEach((speechValue, index) => {
+            setTimeout(() => {
+                console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
+                speechParam.value = speechValue;
+            }, index * 200); // 200ms Verzögerung pro Phonem
+        });
+
+        // 🔥 Sicherstellen, dass RNBO mit dem Audio-Output verbunden ist
+        device.node.connect(context.destination);
     }
 
-    console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
-    const speechParam = device.parametersById.get("speech");
-
-    if (!speechParam) {
-        console.error("❌ RNBO-Parameter 'speech' existiert nicht! Überprüfe deinen RNBO-Patch.");
-        return;
-    }
-
-    const phonemes = await textToSpeechParams(text); // Lade Phoneme basierend auf dem Wörterbuch
-    console.log(`Wort "${text}" → Phoneme:`, phonemes);
-
-    phonemes.forEach((speechValue, index) => {
-        setTimeout(() => {
-            console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
-            speechParam.value = speechValue;
-        }, index * 100); // ⏳ 300ms Verzögerung pro Phonem
-    });
-}
 
     async function sendChatToSpeech(device, text) {
         if (!device) {
