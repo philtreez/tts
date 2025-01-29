@@ -220,26 +220,26 @@ async function sendTextToRNBO(device, text, isChat = true) {
 }
 
 
-    // Chatbot in TTS integrieren
-    function setupChatbotWithTTS(device) {
-        const chatbot = new TrashyChatbot();
-        const chatOutput = document.querySelector(".model-text");
-        const userInput = document.querySelector(".user-text");
-        const sendButton = document.querySelector(".send-button");
+function setupChatbotWithTTS(device) {
+    const chatbot = new TrashyChatbot();
+    const chatOutput = document.querySelector(".model-text");
+    const userInput = document.querySelector(".user-text");
+    const sendButton = document.querySelector(".send-button");
 
-        sendButton.addEventListener("click", async () => {
+    sendButton.addEventListener("click", async () => {
         const userText = userInput.innerText.trim();
         if (userText) {
             chatOutput.innerHTML += `<p><strong>Du:</strong> ${userText}</p>`;
             setTimeout(() => {
-            const botResponse = chatbot.getMarkovResponse(userText);
-            chatOutput.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
-            sendTextToRNBO(device, botResponse, true);
+                const botResponse = chatbot.getMarkovResponse(userText);
+                chatOutput.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
+                sendTextToRNBO(device, botResponse, true); // ✅ Chatbot sendet Text an RNBO
             }, 500);
             userInput.innerText = "";
         }
-        });
-    }
+    });
+}
+
 
 // Setup starten
 setup();
