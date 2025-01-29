@@ -88,12 +88,33 @@ async function setup() {
         // 🛠 Debug: Zeige ALLE verfügbaren Parameter
         console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
 
-        setupWebflowForm(device);        
+        setupChatbotWithTTS(device); // 🟢 Chatbot wird hier gestartet, nachdem `device` existiert        
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
         return;
     }
 }
+
+
+    // Lade RNBO-Skript dynamisch
+    function loadRNBOScript(version) {
+        return new Promise((resolve, reject) => {
+            if (/^\d+\.\d+\.\d+-dev$/.test(version)) {
+                throw new Error("RNBO Debug-Version erkannt! Bitte eine stabile Version exportieren.");
+            }
+            const el = document.createElement("script");
+            el.src = `https://c74-public.nyc3.digitaloceanspaces.com/rnbo/${encodeURIComponent(version)}/rnbo.min.js`;
+            el.onload = () => {
+                console.log("✅ RNBO.js erfolgreich geladen.");
+                resolve();
+            };
+            el.onerror = err => {
+                console.error("❌ Fehler beim Laden von rnbo.js:", err);
+                reject(new Error(`Fehler beim Laden von rnbo.js v${version}`));
+            };
+            document.body.append(el);
+        });
+    }
 
 // Text zu Phoneme umwandeln mit lokalem Wörterbuch
 async function textToSpeechParams(text) {
@@ -208,58 +229,6 @@ async function sendToRNBO(device, text) {
         }
         });
     }
-
-// Webflow-Formular automatisch erkennen & steuern
-function setupWebflowForm(device) {
-    const form = document.querySelector("#wf-form-TEXTFORM, [data-name='TEXTFORM']");
-    if (!form) {
-        console.error("❌ Webflow-Formular nicht gefunden! Stelle sicher, dass die ID 'wf-form-TEXTFORM' existiert.");
-        return;
-    }
-
-    const textInput = form.querySelector("input[type='text']");
-    const submitButton = form.querySelector("input[type='submit'], button");
-
-    if (!textInput || !submitButton) {
-        console.error("❌ Textfeld oder Submit-Button nicht gefunden!");
-        return;
-    }
-
-    submitButton.addEventListener("click", function(event) {
-        event.preventDefault();
-        const text = textInput.value.trim();
-        if (!text) {
-            console.warn("⚠️ Kein Text eingegeben!");
-            return;
-        }
-
-        console.log("▶️ Text aus Webflow-Formular:", text);
-        sendToRNBO(device, text);
-    });
-
-    console.log("✅ Webflow-Formular erfolgreich mit RNBO verbunden!");
-}
-
-
-// Lade RNBO-Skript dynamisch
-function loadRNBOScript(version) {
-    return new Promise((resolve, reject) => {
-        if (/^\d+\.\d+\.\d+-dev$/.test(version)) {
-            throw new Error("RNBO Debug-Version erkannt! Bitte eine stabile Version exportieren.");
-        }
-        const el = document.createElement("script");
-        el.src = `https://c74-public.nyc3.digitaloceanspaces.com/rnbo/${encodeURIComponent(version)}/rnbo.min.js`;
-        el.onload = () => {
-            console.log("✅ RNBO.js erfolgreich geladen.");
-            resolve();
-        };
-        el.onerror = err => {
-            console.error("❌ Fehler beim Laden von rnbo.js:", err);
-            reject(new Error(`Fehler beim Laden von rnbo.js v${version}`));
-        };
-        document.body.append(el);
-    });
-}
 
 // Setup starten
 setup();
