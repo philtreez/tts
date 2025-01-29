@@ -247,3 +247,8 @@ function setupChatbotWithTTS(device) {
 
 // Setup starten
 setup();
+
+setup().then(() => {
+    console.log("🚀 Starte Chatbot mit TTS...");
+    setupChatbotWithTTS(device);
+});
