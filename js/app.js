@@ -192,7 +192,7 @@ async function textToSpeechParams(text) {
     }
 }
 
-async function sendTextToRNBO(device, text, isChat = false) {
+async function sendTextToRNBO(device, text, isChat = true) {
     if (!device) {
         console.error("❌ RNBO nicht geladen!");
         return;
