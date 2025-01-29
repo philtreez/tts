@@ -215,36 +215,32 @@ function setupWebflowForm(device) {
     console.log("✅ Webflow-Formular erfolgreich mit RNBO verbunden!");
 }
 
-function updateStep16Visualization(stepValue) {
-    const stepDivs = document.querySelectorAll(".step16-box");
+    // ------ Li-Visualisierung ------
+    const maxLi = 16; // Anzahl der Lichter (1-16)
+    const liClassPrefix = "li"; // Klassenname-Präfix
 
-    stepDivs.forEach(div => {
-        if (div.getAttribute("data-step") === String(stepValue)) {
-            console.log(`👀 Sichtbar: data-step="${div.getAttribute("data-step")}"`);
-            div.classList.add("visible"); // Sollte in Webflow sichtbar sein
-        } else {
-            div.classList.remove("visible");
-        }
-    });
-}
+    const liParam = device.parametersById.get("li");
 
-function handleStep16Change(device) {
-    const step16Param = device.parametersById.get("step16");
-
-    if (!step16Param) {
-        console.error("❌ RNBO-Parameter 'step16' nicht gefunden!");
-        return;
+    if (liParam) {
+        device.parameterChangeEvent.subscribe((param) => {
+            if (param.id === liParam.id) {
+                const liValue = Math.round(param.value); // Wert zwischen 1 und 16
+                updateLiVisual(liValue);
+                console.log(`Li visual set to: ${liValue}`);
+            }
+        });
     }
 
-    // Debugging: Loggt initialen Wert von step16
-    console.log("🔍 Startwert von step16:", step16Param.value);
+    function updateLiVisual(activeLi) {
+        for (let i = 1; i <= maxLi; i++) {
+            const liElement = document.querySelector(`.${liClassPrefix}${i}`);
+            if (liElement) {
+                // Sichtbarkeit steuern: nur das aktive Licht sichtbar machen
+                liElement.style.visibility = i === activeLi ? "visible" : "hidden";
+            }
+        }
+    }
 
-    // Event-Listener für Änderungen hinzufügen
-    step16Param.onValueChange = (newValue) => {
-        console.log(`🔄 RNBO step16 geändert: ${newValue}`);
-        updateStep16Visualization(newValue);
-    };
-}
 
 // Setup starten
 setup();
