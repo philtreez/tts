@@ -203,15 +203,23 @@ function handleLiChange(device) {
         return;
     }
 
-    // Debugging: Logge den Startwert
-    console.log("🔍 Startwert von li:", liParam.value);
-
-    // Event-Listener für Änderungen hinzufügen
     liParam.onValueChange = (newValue) => {
-        console.log(`🔄 RNBO 'li' geändert: ${newValue}`);
-        updateLiVisual(newValue);
+        console.log(`🔄 RNBO 'li' geändert:`, newValue, typeof newValue);
+
+        // Falls `newValue` ein String ist, versuche ihn als Zahl zu parsen
+        if (typeof newValue === "string") {
+            if (phonemeMap.hasOwnProperty(newValue)) {
+                newValue = phonemeMap[newValue]; // Phonem in Zahl umwandeln
+            } else {
+                console.warn(`⚠️ Ungültiger li-Wert empfangen: ${newValue}`);
+                return;
+            }
+        }
+
+        updateLiVisual(parseInt(newValue));
     };
 }
+
 
 function updateLiVisual(activeLi) {
     for (let i = 0; i < 16; i++) {
