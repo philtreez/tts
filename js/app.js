@@ -78,18 +78,14 @@ class TrashyChatbot {
     }
   }
   
-  let device; // Globale Variable für RNBO-Device
-  let context; // Globale Variable für AudioContext
-
-async function setup() {
+  async function setup() {
     console.log("🚀 app.js läuft!");
 
     const WAContext = window.AudioContext || window.webkitAudioContext;
-    context = new WAContext();
+    const context = new WAContext(); // 🔥 Innerhalb der Funktion!
     const outputNode = context.createGain();
     outputNode.connect(context.destination);
 
-    // 🛠 Fix: AudioContext erst nach User-Interaktion starten
     document.addEventListener("click", async function resumeAudioContext() {
         if (context.state !== "running") {
             await context.resume();
@@ -111,23 +107,21 @@ async function setup() {
 
     } catch (err) {
         console.error("❌ Fehler beim Laden des RNBO-Patchers:", err);
-        return;
+        return null;
     }
 
     try {
-        device = await RNBO.createDevice({ context, patcher });
+        const device = await RNBO.createDevice({ context, patcher });
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
-
-        // 🛠 Debug: Zeige ALLE verfügbaren Parameter
-        console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
-
-        setupChatbotWithTTS(device); // 🟢 Chatbot wird hier gestartet, nachdem `device` existiert        
+        return device; // 🔥 WICHTIG: device wird zurückgegeben!
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
-        return;
+        return null;
     }
 }
+
+
 
 
     // Lade RNBO-Skript dynamisch
@@ -245,11 +239,10 @@ function setupChatbotWithTTS(device) {
 
 
 
-setup().then((device) => { 
-    if (!device) {
+setup().then(device => {
+    if (device) {
+        setupChatbotWithTTS(device);
+    } else {
         console.error("❌ RNBO-Device wurde nicht geladen!");
-        return;
     }
-    console.log("🚀 Starte Chatbot mit TTS..."); 
-    setupChatbotWithTTS(device); 
 });
