@@ -230,9 +230,10 @@ function setupChatbotWithTTS(device) {
                 const botResponse = chatbot.getMarkovResponse(userText);
                 chatOutput.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
 
+                console.log("🟢 Vor dem Senden an RNBO: device =", device);
                 console.log("📢 Chatbot sendet an RNBO:", botResponse);
                 sendTextToRNBO(device, botResponse);
-
+                console.log("🟢 Nach dem Senden an RNBO");
             }, 500);
             userInput.innerText = "";
         }
