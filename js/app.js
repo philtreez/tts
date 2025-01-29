@@ -79,12 +79,13 @@ class TrashyChatbot {
   }
   
   let device; // Globale Variable für RNBO-Device
+  let context; // Globale Variable für AudioContext
 
 async function setup() {
     console.log("🚀 app.js läuft!");
 
     const WAContext = window.AudioContext || window.webkitAudioContext;
-    const context = new WAContext();
+    context = new WAContext();
     const outputNode = context.createGain();
     outputNode.connect(context.destination);
 
