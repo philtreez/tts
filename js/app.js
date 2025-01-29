@@ -245,10 +245,11 @@ function setupChatbotWithTTS(device) {
 
 
 
-// Setup starten
-setup();
-
-setup().then(() => {
-    console.log("🚀 Starte Chatbot mit TTS...");
-    setupChatbotWithTTS(device);
+setup().then((device) => { 
+    if (!device) {
+        console.error("❌ RNBO-Device wurde nicht geladen!");
+        return;
+    }
+    console.log("🚀 Starte Chatbot mit TTS..."); 
+    setupChatbotWithTTS(device); 
 });
