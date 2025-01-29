@@ -233,12 +233,16 @@ function setupChatbotWithTTS(device) {
             setTimeout(() => {
                 const botResponse = chatbot.getMarkovResponse(userText);
                 chatOutput.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
-                sendTextToRNBO(device, botResponse, true); // ✅ Chatbot sendet Text an RNBO
+
+                console.log("📢 Chatbot sendet an RNBO:", botResponse);
+                sendTextToRNBO(device, botResponse, true); // Chatbot-Antwort an RNBO schicken
+
             }, 500);
             userInput.innerText = "";
         }
     });
 }
+
 
 
 // Setup starten
