@@ -215,6 +215,10 @@ function setupWebflowForm(device) {
     console.log("✅ Webflow-Formular erfolgreich mit RNBO verbunden!");
 }
 
+
+// Setup starten
+setup();
+
     // ------ Li-Visualisierung ------
     const maxLi = 16; // Anzahl der Lichter (1-16)
     const liClassPrefix = "li"; // Klassenname-Präfix
@@ -240,7 +244,3 @@ function setupWebflowForm(device) {
             }
         }
     }
-
-
-// Setup starten
-setup();
