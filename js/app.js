@@ -78,6 +78,7 @@ class TrashyChatbot {
     }
   }
   
+  let device; // Globale Variable für RNBO-Device
 
 async function setup() {
     console.log("🚀 app.js läuft!");
@@ -113,7 +114,7 @@ async function setup() {
     }
 
     try {
-        const device = await RNBO.createDevice({ context, patcher });
+        device = await RNBO.createDevice({ context, patcher });
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
 
