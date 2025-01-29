@@ -96,26 +96,6 @@ async function setup() {
     }
 }
 
-// Lade RNBO-Skript dynamisch
-function loadRNBOScript(version) {
-    return new Promise((resolve, reject) => {
-        if (/^\d+\.\d+\.\d+-dev$/.test(version)) {
-            throw new Error("RNBO Debug-Version erkannt! Bitte eine stabile Version exportieren.");
-        }
-        const el = document.createElement("script");
-        el.src = `https://c74-public.nyc3.digitaloceanspaces.com/rnbo/${encodeURIComponent(version)}/rnbo.min.js`;
-        el.onload = () => {
-            console.log("✅ RNBO.js erfolgreich geladen.");
-            resolve();
-        };
-        el.onerror = err => {
-            console.error("❌ Fehler beim Laden von rnbo.js:", err);
-            reject(new Error(`Fehler beim Laden von rnbo.js v${version}`));
-        };
-        document.body.append(el);
-    });
-}
-
 // Text zu Phoneme umwandeln mit lokalem Wörterbuch
 async function textToSpeechParams(text) {
     try {
@@ -215,10 +195,6 @@ function setupWebflowForm(device) {
     console.log("✅ Webflow-Formular erfolgreich mit RNBO verbunden!");
 }
 
-
-// Setup starten
-setup();
-
 function handleLiChange(device) {
     const liParam = device.parametersById.get("li");
 
@@ -245,3 +221,26 @@ function updateLiVisual(activeLi) {
         }
     }
 }
+
+// Lade RNBO-Skript dynamisch
+function loadRNBOScript(version) {
+    return new Promise((resolve, reject) => {
+        if (/^\d+\.\d+\.\d+-dev$/.test(version)) {
+            throw new Error("RNBO Debug-Version erkannt! Bitte eine stabile Version exportieren.");
+        }
+        const el = document.createElement("script");
+        el.src = `https://c74-public.nyc3.digitaloceanspaces.com/rnbo/${encodeURIComponent(version)}/rnbo.min.js`;
+        el.onload = () => {
+            console.log("✅ RNBO.js erfolgreich geladen.");
+            resolve();
+        };
+        el.onerror = err => {
+            console.error("❌ Fehler beim Laden von rnbo.js:", err);
+            reject(new Error(`Fehler beim Laden von rnbo.js v${version}`));
+        };
+        document.body.append(el);
+    });
+}
+
+// Setup starten
+setup();
