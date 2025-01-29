@@ -78,6 +78,8 @@ class TrashyChatbot {
     }
   }
   
+  let device;  // RNBO-Device global speichern
+
   async function setup() {
     console.log("🚀 app.js läuft!");
 
@@ -111,7 +113,7 @@ class TrashyChatbot {
     }
 
     try {
-        const device = await RNBO.createDevice({ context, patcher });
+        device = await RNBO.createDevice({ context, patcher });
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
         return device; // 🔥 WICHTIG: device wird zurückgegeben!
