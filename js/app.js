@@ -88,8 +88,7 @@ async function setup() {
         // 🛠 Debug: Zeige ALLE verfügbaren Parameter
         console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
 
-        setupWebflowForm(device);
-        handleLiChange        
+        setupWebflowForm(device);        
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
         return;
@@ -164,6 +163,52 @@ async function sendToRNBO(device, text) {
     });
 }
 
+    async function sendChatToSpeech(device, text) {
+        if (!device) {
+            console.error("❌ RNBO nicht geladen!");
+            return;
+        }
+
+        console.log("🎤 Chatbot-Antwort zu TTS: ", text);
+        const phonemes = await textToSpeechParams(text); // Umwandlung in Phoneme
+        console.log(`📢 Generierte Phoneme für "${text}":`, phonemes);
+
+        // Werte an RNBO senden
+        const speechParam = device.parametersById.get("speech");
+        if (!speechParam) {
+            console.error("❌ RNBO-Parameter 'speech' existiert nicht! Überprüfe deinen RNBO-Patch.");
+            return;
+        }
+
+        phonemes.forEach((speechValue, index) => {
+            setTimeout(() => {
+                console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
+                speechParam.value = speechValue;
+            }, index * 200); // 200ms Verzögerung pro Phonem
+        });
+    }
+
+    // Chatbot in TTS integrieren
+    function setupChatbotWithTTS(device) {
+        const chatbot = new TrashyChatbot();
+        const chatOutput = document.querySelector(".model-text");
+        const userInput = document.querySelector(".user-text");
+        const sendButton = document.querySelector(".send-button");
+
+        sendButton.addEventListener("click", async () => {
+        const userText = userInput.innerText.trim();
+        if (userText) {
+            chatOutput.innerHTML += `<p><strong>Du:</strong> ${userText}</p>`;
+            setTimeout(() => {
+            const botResponse = chatbot.getMarkovResponse(userText);
+            chatOutput.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
+            sendChatToSpeech(device, botResponse); // 🟢 Text an TTS senden
+            }, 500);
+            userInput.innerText = "";
+        }
+        });
+    }
+
 // Webflow-Formular automatisch erkennen & steuern
 function setupWebflowForm(device) {
     const form = document.querySelector("#wf-form-TEXTFORM, [data-name='TEXTFORM']");
@@ -194,45 +239,6 @@ function setupWebflowForm(device) {
 
     console.log("✅ Webflow-Formular erfolgreich mit RNBO verbunden!");
 }
-
-function handleLiChange(device) {
-    const liParam = device.parametersById.get("li");
-
-    if (!liParam) {
-        console.error("❌ RNBO-Parameter 'li' nicht gefunden!");
-        return;
-    }
-
-    liParam.onValueChange = (newValue) => {
-        console.log(`🔄 RNBO 'li' geändert:`, newValue, typeof newValue);
-
-        // Falls `newValue` ein String ist, versuche ihn als Zahl zu parsen
-        if (typeof newValue === "string") {
-            if (phonemeMap.hasOwnProperty(newValue)) {
-                newValue = phonemeMap[newValue]; // Phonem in Zahl umwandeln
-            } else {
-                console.warn(`⚠️ Ungültiger li-Wert empfangen: ${newValue}`);
-                return;
-            }
-        }
-
-        updateLiVisual(parseInt(newValue));
-    };
-}
-
-function updateLiVisual(activeLi) {
-    for (let i = 0; i < 16; i++) {
-        const liElement = document.querySelector(`[data-step="${i}"]`);
-        if (liElement) {
-            liElement.style.visibility = i === activeLi ? "visible" : "hidden";
-        }
-    }
-}
-
-setInterval(() => {
-    console.log("🔄 Li-Wert aktualisieren:", liParam.value);
-    updateLiVisual(liParam.value);
-}, 500); // Alle 500ms checken
 
 
 // Lade RNBO-Skript dynamisch
