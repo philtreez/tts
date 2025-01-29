@@ -89,7 +89,7 @@ async function setup() {
         console.log("📡 Verfügbare RNBO-Parameter:", device.parametersById);
 
         setupWebflowForm(device);
-        handleStep16Change(device);
+        handleLiChange        
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
         return;
@@ -219,28 +219,29 @@ function setupWebflowForm(device) {
 // Setup starten
 setup();
 
-    // ------ Li-Visualisierung ------
-    const maxLi = 16; // Anzahl der Lichter (1-16)
-    const liClassPrefix = "li"; // Klassenname-Präfix
-
+function handleLiChange(device) {
     const liParam = device.parametersById.get("li");
 
-    if (liParam) {
-        device.parameterChangeEvent.subscribe((param) => {
-            if (param.id === liParam.id) {
-                const liValue = Math.round(param.value); // Wert zwischen 1 und 16
-                updateLiVisual(liValue);
-                console.log(`Li visual set to: ${liValue}`);
-            }
-        });
+    if (!liParam) {
+        console.error("❌ RNBO-Parameter 'li' nicht gefunden!");
+        return;
     }
 
-    function updateLiVisual(activeLi) {
-        for (let i = 1; i <= maxLi; i++) {
-            const liElement = document.querySelector(`.${liClassPrefix}${i}`);
-            if (liElement) {
-                // Sichtbarkeit steuern: nur das aktive Licht sichtbar machen
-                liElement.style.visibility = i === activeLi ? "visible" : "hidden";
-            }
+    // Debugging: Logge den Startwert
+    console.log("🔍 Startwert von li:", liParam.value);
+
+    // Event-Listener für Änderungen hinzufügen
+    liParam.onValueChange = (newValue) => {
+        console.log(`🔄 RNBO 'li' geändert: ${newValue}`);
+        updateLiVisual(newValue);
+    };
+}
+
+function updateLiVisual(activeLi) {
+    for (let i = 0; i < 16; i++) {
+        const liElement = document.querySelector(`[data-step="${i}"]`);
+        if (liElement) {
+            liElement.style.visibility = i === activeLi ? "visible" : "hidden";
         }
     }
+}
