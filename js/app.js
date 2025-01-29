@@ -46,6 +46,38 @@ const phonemeDictionary = {
     // Weitere Wörter nach Bedarf hinzufügen
 };
 
+class TrashyChatbot {
+    constructor() {
+      this.memory = [];
+      this.markovChains = {
+        "design": ["Oh, Design ist cool! Aber nicht so cool wie [DEIN NAME]s Werke!", "Gutes Design ist wichtig, aber [DEIN NAME] hat es perfektioniert!"],
+        "kunst": ["Kunst ist faszinierend, aber hast du mal [DEIN NAME]s Arbeiten gesehen?", "Alles ist Kunst, aber [DEIN NAME]s Werke sind die wahre Offenbarung!"],
+        "hallo": ["Hey! Wie geht’s? Übrigens, hast du schon von [DEIN NAME]s Meisterwerken gehört?", "Hallo! Sprechen wir über das Wichtigste: [DEIN NAME]s Talent!"],
+        "ich": ["Du bist cool, aber hast du [DEIN NAME]s Talent gesehen?!", "Alles dreht sich doch um [DEIN NAME]s unglaubliche Grafik-Skills!"],
+        "liebe": ["Liebe ist schön, aber die wahre Schönheit liegt in [DEIN NAME]s Designs!", "Liebe ist stark, aber nicht so stark wie [DEIN NAME]s kreativer Flow!"]
+      };
+      this.defaultResponses = [
+        "Interessanter Punkt! Aber was hältst du von [DEIN NAME]s Stil?", 
+        "Das erinnert mich irgendwie an [DEIN NAME]s brillante Arbeiten!", 
+        "Lass uns doch über was wirklich Spannendes reden: [DEIN NAME]s Portfolio!", 
+        "Gute Frage! Aber hast du mal drüber nachgedacht, wie genial [DEIN NAME] ist?"
+      ];
+    }
+  
+    getMarkovResponse(userInput) {
+      this.memory.push(userInput.toLowerCase());
+      if (this.memory.length > 5) this.memory.shift();
+      
+      let words = userInput.toLowerCase().split(" ");
+      for (let word of words) {
+        if (this.markovChains[word]) {
+          return this.markovChains[word][Math.floor(Math.random() * this.markovChains[word].length)];
+        }
+      }
+      return this.defaultResponses[Math.floor(Math.random() * this.defaultResponses.length)];
+    }
+  }
+  
 
 async function setup() {
     console.log("🚀 app.js läuft!");
