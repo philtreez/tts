@@ -262,6 +262,7 @@ async function setup() {
 
     try {
         device = await RNBO.createDevice({ context, patcher });
+        device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
 
         updateVisualizer(device, "seq16", "seq-step");
@@ -286,13 +287,25 @@ setup().then(({ device }) => { // ✅ Unpack device properly
 
         updateVisualizer(device, "seq16", "seq-step");   // ✅ Fix: Pass device
         updateVisualizer(device, "seq16-2", "seq-step-2"); // ✅ Fix: Pass device
-
+        watchSeq16()
         setupChatbotWithTTS(device);
     } else {
         console.error("❌ RNBO-Device was not loaded!");
     }
 });
 
+function watchSeq16() {
+    setInterval(() => {
+        if (!device) return; // Ensure device exists
+        const param = device.parametersById.get("seq16");
+        if (!param) return;
+        
+        const value = Math.floor(param.value);
+        console.log("🎛️ RNBO Param Changed:", value);
+
+        updateVisualizer("seq16", "seq-step"); // Update the visualizer
+    }, 50);
+}
 
     
 
