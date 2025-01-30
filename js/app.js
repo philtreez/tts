@@ -265,8 +265,6 @@ class TrashyChatbot {
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
         
-        updateVisualizer("seq16", "seq-step"); // First set of divs
-        updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
         return device; // 🔥 WICHTIG: device wird zurückgegeben!
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
@@ -293,6 +291,9 @@ class TrashyChatbot {
             document.body.append(el);
         });
     }
+
+    updateVisualizer("seq16", "seq-step"); // First set of divs
+    updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
 
     function updateVisualizer(paramName, divClass) {
         const steps = document.querySelectorAll(`.${divClass}`);
