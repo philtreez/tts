@@ -275,7 +275,7 @@ class TrashyChatbot {
 }
 
     
-setup().then(device => {
+setup().then(({ device }) => { // ✅ Fix: Unpack device correctly
     if (device) {
         console.log("✅ RNBO Device initialized!");
 
@@ -287,12 +287,13 @@ setup().then(device => {
 
         updateVisualizer("seq16", "seq-step"); // First set
         updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
-        
+
         setupChatbotWithTTS(device);
     } else {
         console.error("❌ RNBO-Device was not loaded!");
     }
 });
+
     
 
 // Text zu Phoneme umwandeln mit lokalem Wörterbuch
