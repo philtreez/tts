@@ -271,9 +271,6 @@ class TrashyChatbot {
     }
 }
 
-
-
-
     // Lade RNBO-Skript dynamisch
     function loadRNBOScript(version) {
         return new Promise((resolve, reject) => {
@@ -363,32 +360,40 @@ async function sendTextToRNBO(device, text, isChat = true) {
     device.node.connect(context.destination);
 }
 
-
 function setupChatbotWithTTS(device) {
     const chatbot = new TrashyChatbot();
     const chatOutput = document.querySelector(".model-text");
     const userInput = document.querySelector(".user-text");
     const sendButton = document.querySelector(".send-button");
 
+    function scrollToBottom() {
+        chatOutput.scrollTop = chatOutput.scrollHeight;
+    }
+
     sendButton.addEventListener("click", async () => {
         const userText = userInput.innerText.trim();
         if (userText) {
-            chatOutput.innerHTML += `<p><strong>Du:</strong> ${userText}</p>`;
+            chatOutput.innerHTML += `<p><strong>You:</strong> ${userText}</p>`;
+            scrollToBottom();
+
             setTimeout(() => {
                 const botResponse = chatbot.getMarkovResponse(userText);
                 chatOutput.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
-
-                console.log("🟢 Vor dem Senden an RNBO: device =", device);
-                console.log("📢 Chatbot sendet an RNBO:", botResponse);
+                scrollToBottom();
                 sendTextToRNBO(device, botResponse);
-                console.log("🟢 Nach dem Senden an RNBO");
             }, 500);
-            userInput.innerText = "";
+        }
+        userInput.innerText = "";
+    });
+
+    // Allow sending messages with Enter key
+    userInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevents a new line
+            sendButton.click(); // Simulates button click
         }
     });
 }
-
-
 
 setup().then(device => {
     if (device) {
