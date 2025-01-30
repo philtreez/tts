@@ -274,7 +274,7 @@ async function setup() {
         }
 
         // Ensure visualization parameters exist
-        const visParams = ["seq16", "seq16-2"];
+        const visParams = ["seq16", "seq162"];
         visParams.forEach(param => {
             if (!device.parametersById.get(param)) {
                 console.error(`❌ RNBO Parameter "${param}" nicht gefunden!`);
@@ -283,7 +283,7 @@ async function setup() {
 
         // Initialize visualizers
         updateVisualizer(device, "seq16", "seq-step");
-        updateVisualizer(device, "seq16-2", "seq-step2");
+        updateVisualizer(device, "seq162", "seq-step2");
 
         return { device, context };
     } catch (err) {
@@ -304,7 +304,7 @@ setup().then(({ device }) => { // ✅ Unpack device properly
         }
 
         updateVisualizer(device, "seq16", "seq-step");   // ✅ Fix: Pass device
-        updateVisualizer(device, "seq16-2", "seq-step2"); // ✅ Fix: Pass device
+        updateVisualizer(device, "seq162", "seq-step2"); // ✅ Fix: Pass device
         setupChatbotWithTTS(device);
     } else {
         console.error("❌ RNBO-Device was not loaded!");
@@ -439,11 +439,9 @@ function setupChatbotWithTTS(device, context) {
         document.body.append(el);
     });
 }
-
 const maxSteps = 16; // Number of divs
 const stepClassPrefix = "seq-step"; // Prefix for the divs
 
-// Ensure RNBO is initialized first
 setup().then(({ device }) => {
     if (device) {
         console.log("✅ RNBO Device initialized!");
@@ -452,14 +450,18 @@ setup().then(({ device }) => {
         const step16Param = device.parametersById.get("step16");
 
         if (step16Param) {
-            // Subscribe to RNBO parameter changes
-            device.parameterChangeEvent.subscribe((param) => {
-                if (param.id === step16Param.id) {
-                    const stepValue = Math.round(param.value); // Ensure integer
-                    updateStepVisual(stepValue);
-                    console.log(`🟢 Step visual set to: ${stepValue}`);
-                }
+            console.log("🎛️ Subscribing to 'step16' parameter changes...");
+
+            // ✅ FIX: Explicitly enable parameter notifications
+            step16Param.notificationSetting = 0; // ParameterNotificationSetting.All
+
+            // ✅ Use `changeEvent.subscribe()` instead of `parameterChangeEvent`
+            step16Param.changeEvent.subscribe((value) => {
+                const stepValue = Math.floor(value); // Ensure integer
+                console.log(`🟢 Step visual update received: ${stepValue}`);
+                updateStepVisual(stepValue);
             });
+
         } else {
             console.error("❌ RNBO Parameter 'step16' not found!");
         }
@@ -470,13 +472,19 @@ setup().then(({ device }) => {
 
 // Function to update the step visualization
 function updateStepVisual(activeStep) {
+    console.log(`🎨 Updating visualization for step: ${activeStep}`);
+
     for (let i = 0; i < maxSteps; i++) {
         const stepElement = document.querySelector(`.${stepClassPrefix}${i}`);
         if (stepElement) {
             stepElement.style.visibility = i === activeStep ? "visible" : "hidden";
+            stepElement.style.opacity = i === activeStep ? "1" : "0"; // Ensure visibility works
+        } else {
+            console.warn(`⚠️ Step div '.${stepClassPrefix}${i}' not found!`);
         }
     }
 }
+
 
 
 
