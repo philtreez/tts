@@ -428,6 +428,7 @@ function updateVisualizer(paramName, divClass) {
 setup().then(device => {
     if (device) {
         setupChatbotWithTTS(device);
+        updateVisualizer(paramName, divClass)
     } else {
         console.error("❌ RNBO-Device wurde nicht geladen!");
     }
