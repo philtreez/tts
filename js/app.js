@@ -287,7 +287,7 @@ class TrashyChatbot {
             // Subscribe to parameter changes
             device.parameterChangeEvent.subscribe((param) => {
                 if (param.id === seq16Param.id) {
-                    updateVisualizer("seq16", "your-div-class");
+                    updateVisualizer("seq16", "seq-step");
                 }
             });
     
@@ -449,6 +449,7 @@ function updateVisualizer(device, paramName, divClass) {
 setup().then(({ device, context }) => {
     if (device) {
         setupChatbotWithTTS(device, context);
+        
     } else {
         console.error("❌ RNBO-Device wurde nicht geladen!");
     }
