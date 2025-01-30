@@ -232,7 +232,7 @@ class TrashyChatbot {
     console.log("🚀 app.js läuft!");
 
     const WAContext = window.AudioContext || window.webkitAudioContext;
-    const context = new WAContext(); // 🔥 Innerhalb der Funktion!
+    const context = new WAContext();
     const outputNode = context.createGain();
     outputNode.connect(context.destination);
 
@@ -254,36 +254,26 @@ class TrashyChatbot {
             console.log("📥 Lade RNBO...");
             await loadRNBOScript(patcher.desc.meta.rnboversion);
         }
-
     } catch (err) {
         console.error("❌ Fehler beim Laden des RNBO-Patchers:", err);
         return null;
     }
 
     try {
-        device = await RNBO.createDevice({ context, patcher });
+        const device = await RNBO.createDevice({ context, patcher });
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
-        updateVisualizer("seq16", "seq-step"); // First set of divs
-        updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
-        watchSeq16();
-        return device; // 🔥 WICHTIG: device wird zurückgegeben!
+
+        updateVisualizer(device, "seq16", "seq-step");
+        updateVisualizer(device, "seq16-2", "seq-step-2");
+
+        return { device, context }; // FIX: return both
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
         return null;
     }
-    function watchSeq16() {
-        setInterval(() => {
-            const param = device.parametersById.get("seq16");
-            if (!param) return; // Prevents errors if RNBO isn't ready
-    
-            const value = Math.floor(param.value); // Get the current value
-            console.log("🎛️ RNBO Param Changed:", value);
-    
-            updateVisualizer("seq16", "seq-step"); // Update the visualizer
-        }, 50); // Check every 50ms
-    }
 }
+
     
     setup().then(device => {
         if (device) {
@@ -350,7 +340,7 @@ async function textToSpeechParams(text) {
     }
 }
 
-async function sendTextToRNBO(device, text, isChat = true) {
+async function sendTextToRNBO(device, text, context, isChat = true) {
     if (!device) {
         console.error("❌ RNBO nicht geladen!");
         return;
@@ -377,7 +367,7 @@ async function sendTextToRNBO(device, text, isChat = true) {
     device.node.connect(context.destination);
 }
 
-function setupChatbotWithTTS(device) {
+function setupChatbotWithTTS(device, context) {
     const chatbot = new TrashyChatbot();
     const chatOutput = document.querySelector(".model-text");
     const userInput = document.querySelector(".user-text");
@@ -397,7 +387,7 @@ function setupChatbotWithTTS(device) {
                 const botResponse = chatbot.getMarkovResponse(userText);
                 chatOutput.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
                 scrollToBottom();
-                sendTextToRNBO(device, botResponse);
+                sendTextToRNBO(device, botResponse, context);
             }, 500);
         }
         userInput.innerText = "";
@@ -406,8 +396,8 @@ function setupChatbotWithTTS(device) {
     // Allow sending messages with Enter key
     userInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
-            event.preventDefault(); // Prevents a new line
-            sendButton.click(); // Simulates button click
+            event.preventDefault();
+            sendButton.click();
         }
     });
 }
@@ -432,7 +422,7 @@ function setupChatbotWithTTS(device) {
     });
 }
 
-function updateVisualizer(paramName, divClass) {
+function updateVisualizer(device, paramName, divClass) {
     const steps = document.querySelectorAll(`.${divClass}`);
 
     if (!steps.length) {
@@ -442,24 +432,23 @@ function updateVisualizer(paramName, divClass) {
 
     console.log(`✅ Found ${steps.length} elements for ${divClass}`);
 
-    // Listen for RNBO parameter changes
-    device.parametersById.get(paramName).valueChanged = (value) => {
-        const stepIndex = Math.floor(value);
-        console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
+    // Subscribe to parameter changes
+    device.parameterChangeEvent.subscribe((param) => {
+        if (param.id === device.parametersById.get(paramName).id) {
+            const stepIndex = Math.floor(param.value);
+            console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
 
-        // Hide all steps (completely remove from layout)
-        steps.forEach(step => step.style.display = "none");
-
-        // Show active step
-        if (steps[stepIndex]) {
-            steps[stepIndex].style.display = "block";
+            steps.forEach(step => step.style.display = "none");
+            if (steps[stepIndex]) {
+                steps[stepIndex].style.display = "block";
+            }
         }
-    };
+    });
 }
 
-setup().then(device => {
+setup().then(({ device, context }) => {
     if (device) {
-        setupChatbotWithTTS(device);
+        setupChatbotWithTTS(device, context);
     } else {
         console.error("❌ RNBO-Device wurde nicht geladen!");
     }
