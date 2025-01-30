@@ -227,9 +227,6 @@ class TrashyChatbot {
 let device;
 let context;
 
-delete window.p5.prototype.AudioContext;
-delete window.p5.prototype.getAudioContext;
-
 async function setup() {
     console.log("🚀 app.js läuft!");
 
