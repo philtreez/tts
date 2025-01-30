@@ -235,17 +235,6 @@ let context;
 async function setup() {
     console.log("🚀 app.js läuft!");
 
-    // Create standard Web Audio context
-    const WAContext = window.AudioContext || window.webkitAudioContext;
-    context = new WAContext();
-    const outputNode = context.createGain();
-    outputNode.connect(context.destination);
-
-    // ... rest of your setup code ...
-}
-async function setup() {
-    console.log("🚀 app.js läuft!");
-
     const WAContext = window.AudioContext || window.webkitAudioContext;
     context = new WAContext();
     const outputNode = context.createGain();
