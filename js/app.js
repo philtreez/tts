@@ -226,13 +226,14 @@ class TrashyChatbot {
 
 
   
-let device;  // RNBO-Device global speichern
+let device;
+let context;
 
 async function setup() {
     console.log("🚀 app.js läuft!");
 
     const WAContext = window.AudioContext || window.webkitAudioContext;
-    const context = new WAContext();
+    context = new WAContext(); // Assign to global context
     const outputNode = context.createGain();
     outputNode.connect(context.destination);
 
@@ -260,12 +261,12 @@ async function setup() {
     }
 
     try {
-        const device = await RNBO.createDevice({ context, patcher });
+        device = await RNBO.createDevice({ context, patcher });
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
 
-        updateVisualizer(device, "seq16", "seq-step");   // ✅ Pass device
-        updateVisualizer(device, "seq16-2", "seq-step-2"); // ✅ Pass device
+        updateVisualizer(device, "seq16", "seq-step");
+        updateVisualizer(device, "seq16-2", "seq-step-2");
 
         return { device, context }; // ✅ Return both
     } catch (err) {
@@ -339,10 +340,10 @@ async function textToSpeechParams(text) {
     }
 }
 
-async function sendTextToRNBO(device, text, isChat = true) {
+async function sendTextToRNBO(device, text, context, isChat = true) {
     if (!device) {
-        console.error("❌ RNBO not initialized! Delaying execution...");
-        setTimeout(() => sendTextToRNBO(device, text, isChat), 500);
+        console.error("❌ RNBO nicht initialisiert! Verzögerung...");
+        setTimeout(() => sendTextToRNBO(device, text, context, isChat), 500);
         return;
     }
 
@@ -423,7 +424,7 @@ function setupChatbotWithTTS(device, context) {
     });
 }
 
-function updateVisualizer(paramName, divClass) {
+function updateVisualizer(device, paramName, divClass) {
     const steps = document.querySelectorAll(`.${divClass}`);
 
     if (!steps.length) {
@@ -457,10 +458,11 @@ function updateVisualizer(paramName, divClass) {
 }
 
 
-setup().then(({ device, context }) => {
-    if (device) {
+setup().then(({ device: dev, context: ctx }) => {
+    if (dev && ctx) {
+        device = dev; // Assign to global device
+        context = ctx; // Assign to global context
         setupChatbotWithTTS(device, context);
-        
     } else {
         console.error("❌ RNBO-Device wurde nicht geladen!");
     }
