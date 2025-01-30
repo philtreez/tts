@@ -226,9 +226,9 @@ class TrashyChatbot {
 
 
   
-  let device;  // RNBO-Device global speichern
+let device;  // RNBO-Device global speichern
 
-  async function setup() {
+async function setup() {
     console.log("🚀 app.js läuft!");
 
     const WAContext = window.AudioContext || window.webkitAudioContext;
@@ -264,18 +264,17 @@ class TrashyChatbot {
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
 
-        updateVisualizer(device, "seq16", "seq-step");
-        updateVisualizer(device, "seq16-2", "seq-step-2");
+        updateVisualizer(device, "seq16", "seq-step");   // ✅ Pass device
+        updateVisualizer(device, "seq16-2", "seq-step-2"); // ✅ Pass device
 
-        return { device, context }; // FIX: return both
+        return { device, context }; // ✅ Return both
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
         return null;
     }
 }
 
-    
-setup().then(({ device }) => { // ✅ Fix: Unpack device correctly
+setup().then(({ device }) => { // ✅ Unpack device properly
     if (device) {
         console.log("✅ RNBO Device initialized!");
 
@@ -285,14 +284,15 @@ setup().then(({ device }) => { // ✅ Fix: Unpack device correctly
             return;
         }
 
-        updateVisualizer("seq16", "seq-step"); // First set
-        updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
+        updateVisualizer(device, "seq16", "seq-step");   // ✅ Fix: Pass device
+        updateVisualizer(device, "seq16-2", "seq-step-2"); // ✅ Fix: Pass device
 
         setupChatbotWithTTS(device);
     } else {
         console.error("❌ RNBO-Device was not loaded!");
     }
 });
+
 
     
 
