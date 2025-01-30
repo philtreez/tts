@@ -264,7 +264,8 @@ class TrashyChatbot {
         device = await RNBO.createDevice({ context, patcher });
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
-        
+        updateVisualizer("seq16", "seq-step"); // First set of divs
+        updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
         return device; // 🔥 WICHTIG: device wird zurückgegeben!
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
@@ -272,33 +273,6 @@ class TrashyChatbot {
     }
 }
 
-    updateVisualizer("seq16", "seq-step"); // First set of divs
-    updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
-
-    function updateVisualizer(paramName, divClass) {
-        const steps = document.querySelectorAll(`.${divClass}`);
-
-        if (!steps.length) {
-            console.warn(`⚠️ No elements found for ${divClass}`);
-            return;
-        }
-
-        console.log(`✅ Found ${steps.length} elements for ${divClass}`);
-
-        // Listen for RNBO parameter changes
-        device.parametersById.get(paramName).valueChanged = (value) => {
-            const stepIndex = Math.floor(value);
-            console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
-
-            // Hide all steps (completely remove from layout)
-            steps.forEach(step => step.style.display = "none");
-
-            // Show active step
-            if (steps[stepIndex]) {
-                steps[stepIndex].style.display = "block";
-            }
-        };
-    }
 
     // Lade RNBO-Skript dynamisch
     function loadRNBOScript(version) {
@@ -424,6 +398,31 @@ function setupChatbotWithTTS(device) {
             sendButton.click(); // Simulates button click
         }
     });
+}
+
+function updateVisualizer(paramName, divClass) {
+    const steps = document.querySelectorAll(`.${divClass}`);
+
+    if (!steps.length) {
+        console.warn(`⚠️ No elements found for ${divClass}`);
+        return;
+    }
+
+    console.log(`✅ Found ${steps.length} elements for ${divClass}`);
+
+    // Listen for RNBO parameter changes
+    device.parametersById.get(paramName).valueChanged = (value) => {
+        const stepIndex = Math.floor(value);
+        console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
+
+        // Hide all steps (completely remove from layout)
+        steps.forEach(step => step.style.display = "none");
+
+        // Show active step
+        if (steps[stepIndex]) {
+            steps[stepIndex].style.display = "block";
+        }
+    };
 }
 
 setup().then(device => {
