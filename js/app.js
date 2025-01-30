@@ -264,6 +264,9 @@ class TrashyChatbot {
         device = await RNBO.createDevice({ context, patcher });
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
+        
+        updateVisualizer("seq16", "seq-step"); // First set of divs
+        updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
         return device; // 🔥 WICHTIG: device wird zurückgegeben!
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
@@ -290,6 +293,30 @@ class TrashyChatbot {
             document.body.append(el);
         });
     }
+
+    // 🔹 The function itself should go anywhere **outside** setup()
+function updateVisualizer(paramName, divClass) {
+    const steps = document.querySelectorAll(`.${divClass}`);
+
+    if (!steps.length) {
+        console.warn(`⚠ No elements found for ${divClass}`);
+        return;
+    }
+
+    // Listen for RNBO parameter changes
+    device.parametersById.get(paramName).valueChanged = (value) => {
+        const stepIndex = Math.floor(value); // Make sure it's an integer
+        console.log(`🔄 Updating ${divClass}: Step ${stepIndex}`);
+
+        // Hide all steps first
+        steps.forEach(step => step.style.opacity = 0.2);
+
+        // Show the active step
+        if (steps[stepIndex]) {
+            steps[stepIndex].style.opacity = 1;
+        }
+    };
+}
 
 // Text zu Phoneme umwandeln mit lokalem Wörterbuch
 async function textToSpeechParams(text) {
