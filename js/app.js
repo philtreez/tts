@@ -224,11 +224,25 @@ class TrashyChatbot {
     }
 }
 
+// Remove p5.sound.min.js from your HTML imports
+// Add this before any audio code
+delete window.p5.prototype.AudioContext;
+delete window.p5.prototype.getAudioContext;
 
-  
 let device;
 let context;
 
+async function setup() {
+    console.log("🚀 app.js läuft!");
+
+    // Create standard Web Audio context
+    const WAContext = window.AudioContext || window.webkitAudioContext;
+    context = new WAContext();
+    const outputNode = context.createGain();
+    outputNode.connect(context.destination);
+
+    // ... rest of your setup code ...
+}
 async function setup() {
     console.log("🚀 app.js läuft!");
 
@@ -519,12 +533,16 @@ function updateVisualizer(device, paramName, divClass) {
 }
 
 
-setup().then(({ device: dev, context: ctx }) => {
-    if (dev && ctx) {
-        device = dev; // Assign to global device
-        context = ctx; // Assign to global context
-        setupChatbotWithTTS(device, context);
-    } else {
-        console.error("❌ RNBO-Device wurde nicht geladen!");
+setup()
+.then(result => {
+    if (!result) {
+        console.error("❌ Setup failed completely!");
+        showErrorToUser(); // Add your UI error handling
+        return;
     }
+    const { device, context } = result;
+    setupChatbotWithTTS(device, context);
+})
+.catch(err => {
+    console.error("🔥 Unhandled setup error:", err);
 });
