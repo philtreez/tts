@@ -262,7 +262,6 @@ async function setup() {
 
     try {
         device = await RNBO.createDevice({ context, patcher });
-        device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
 
         updateVisualizer(device, "seq16", "seq-step");
