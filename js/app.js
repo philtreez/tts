@@ -363,7 +363,6 @@ async function textToSpeechParams(text) {
             }
         });
 
-        console.log(device.parametersById.get("seq16"));
         console.log("🔡 Generierte Speech-Werte:", speechParams);
         return speechParams;
 
