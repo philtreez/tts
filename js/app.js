@@ -309,7 +309,7 @@ function updateVisualizer(paramName, divClass) {
         console.log(`🔄 Updating ${divClass}: Step ${stepIndex}`);
 
         // Hide all steps first
-        steps.forEach(step => step.style.opacity = 0.2);
+        steps.forEach(step => step.style.opacity = 0);
 
         // Show the active step
         if (steps[stepIndex]) {
