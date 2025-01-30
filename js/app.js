@@ -266,6 +266,7 @@ class TrashyChatbot {
         console.log("✅ RNBO WebAudio erfolgreich geladen!");
         updateVisualizer("seq16", "seq-step"); // First set of divs
         updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
+        watchSeq16();
         return device; // 🔥 WICHTIG: device wird zurückgegeben!
     } catch (err) {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
@@ -294,7 +295,20 @@ class TrashyChatbot {
         });
     }
 
-
+    function watchSeq16() {
+        setInterval(() => {
+            const param = device.parametersById.get("seq16");
+            if (!param) return; // Prevents errors if RNBO isn't ready
+    
+            const value = Math.floor(param.value); // Get the current value
+            console.log("🎛️ RNBO Param Changed:", value);
+    
+            updateVisualizer("seq16", "seq-step"); // Update the visualizer
+        }, 50); // Check every 50ms
+    }
+    
+    
+    
 
 // Text zu Phoneme umwandeln mit lokalem Wörterbuch
 async function textToSpeechParams(text) {
