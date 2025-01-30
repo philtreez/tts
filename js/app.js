@@ -422,7 +422,7 @@ function setupChatbotWithTTS(device, context) {
     });
 }
 
-function updateVisualizer(device, paramName, divClass) {
+function updateVisualizer(paramName, divClass) {
     const steps = document.querySelectorAll(`.${divClass}`);
 
     if (!steps.length) {
@@ -432,18 +432,19 @@ function updateVisualizer(device, paramName, divClass) {
 
     console.log(`✅ Found ${steps.length} elements for ${divClass}`);
 
-    // Subscribe to parameter changes
-    device.parameterChangeEvent.subscribe((param) => {
-        if (param.id === device.parametersById.get(paramName).id) {
-            const stepIndex = Math.floor(param.value);
-            console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
+    device.parametersById.get(paramName).valueChanged = (value) => {
+        const stepIndex = Math.floor(value);
+        console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
 
-            steps.forEach(step => step.style.display = "none");
-            if (steps[stepIndex]) {
-                steps[stepIndex].style.display = "block";
-            }
+        // Hide all steps
+        steps.forEach(step => step.style.display = "none");
+
+        // Show only the div with the matching data-index
+        const activeStep = document.querySelector(`.${divClass}[data-index="${stepIndex}"]`);
+        if (activeStep) {
+            activeStep.style.display = "block";
         }
-    });
+    };
 }
 
 setup().then(({ device, context }) => {
