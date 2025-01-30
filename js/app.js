@@ -308,25 +308,12 @@ setup().then(({ device }) => { // ✅ Unpack device properly
 
         updateVisualizer(device, "seq16", "seq-step");   // ✅ Fix: Pass device
         updateVisualizer(device, "seq16-2", "seq-step2"); // ✅ Fix: Pass device
-        watchSeq16()
         setupChatbotWithTTS(device);
     } else {
         console.error("❌ RNBO-Device was not loaded!");
     }
 });
 
-function watchSeq16() {
-    setInterval(() => {
-        if (!device) return; // Ensure device exists
-        const param = device.parametersById.get("seq16");
-        if (!param) return;
-        
-        const value = Math.floor(param.value);
-        console.log("🎛️ RNBO Param Changed:", value);
-
-        updateVisualizer("seq16", "seq-step"); // Update the visualizer
-    }, 50);
-}
 
     
 
@@ -456,64 +443,44 @@ function setupChatbotWithTTS(device, context) {
     });
 }
 
-function updateVisualizer(device, paramName, divClass) {
-    console.groupCollapsed(`🖥️ Initializing visualizer for ${paramName}`);
-    
-    try {
-        // Verify device connection
-        if (!device || !device.parametersById) {
-            console.error("❌ Ungültiges Gerät oder Parameter-Liste");
-            return;
+const maxSteps = 16; // Number of divs
+const stepClassPrefix = "seq-step"; // Prefix for the divs
+
+// Ensure RNBO is initialized first
+setup().then(({ device }) => {
+    if (device) {
+        console.log("✅ RNBO Device initialized!");
+
+        // Get the RNBO parameter for step16
+        const step16Param = device.parametersById.get("step16");
+
+        if (step16Param) {
+            // Subscribe to RNBO parameter changes
+            device.parameterChangeEvent.subscribe((param) => {
+                if (param.id === step16Param.id) {
+                    const stepValue = Math.round(param.value); // Ensure integer
+                    updateStepVisual(stepValue);
+                    console.log(`🟢 Step visual set to: ${stepValue}`);
+                }
+            });
+        } else {
+            console.error("❌ RNBO Parameter 'step16' not found!");
         }
+    } else {
+        console.error("❌ RNBO Device was not loaded!");
+    }
+});
 
-        // Get parameter reference
-        const param = device.parametersById.get(paramName);
-        if (!param) {
-            console.error(`❌ Parameter "${paramName}" nicht gefunden!`);
-            return;
+// Function to update the step visualization
+function updateStepVisual(activeStep) {
+    for (let i = 0; i < maxSteps; i++) {
+        const stepElement = document.querySelector(`.${stepClassPrefix}${i}`);
+        if (stepElement) {
+            stepElement.style.visibility = i === activeStep ? "visible" : "hidden";
         }
-
-        // Find DOM elements
-        const steps = document.querySelectorAll(`.${divClass}`);
-        console.log(`🔍 Gefundene Elemente für ${divClass}:`, steps);
-
-        if (!steps.length) {
-            console.error(`❌ Keine DOM-Elemente gefunden für Klasse: ${divClass}`);
-            return;
-        }
-
-        // Initial state update
-        steps.forEach(step => step.style.display = "none");
-        console.log(`🎨 Initiale Visualisierung für ${paramName} vorbereitet`);
-
-        // Add parameter listener
-        param.valueChanged = (value) => {
-            const stepIndex = Math.floor(value);
-            console.log(`📊 ${paramName} Update: Wert ${value} → Schritt ${stepIndex}`);
-
-            // Hide all steps
-            steps.forEach(step => step.style.display = "none");
-
-            // Show active step
-            const activeStep = document.querySelector(
-                `.${divClass}[data-index="${stepIndex}"]`
-            );
-            
-            if (activeStep) {
-                activeStep.style.display = "flex";
-                console.debug(`👁️ Schritt ${stepIndex} sichtbar gemacht`);
-            } else {
-                console.warn(`⚠️ Kein Element für Index ${stepIndex} gefunden`);
-            }
-        };
-
-        console.log(`✅ Visualizer für ${paramName} erfolgreich initialisiert`);
-    } catch (err) {
-        console.error(`❌ Fehler im Visualizer ${paramName}:`, err);
-    } finally {
-        console.groupEnd();
     }
 }
+
 
 
 setup()
