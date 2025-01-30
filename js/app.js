@@ -268,7 +268,7 @@ async function setup() {
         console.log("ParametersById:", device.parametersById);
         
         // Verify visualization parameters exist
-        const visParams = ["seq16", "seq16-2"];
+        const visParams = ["seq16", "seq162"];
         visParams.forEach(param => {
             if (!device.parametersById.get(param)) {
                 console.error(`❌ Parameter "${param}" nicht gefunden!`);
@@ -286,7 +286,7 @@ async function setup() {
         // Initialize visualizers with delay
         setTimeout(() => {
             updateVisualizer(device, "seq16", "seq-step");
-            updateVisualizer(device, "seq16-2", "seq-step-2");
+            updateVisualizer(device, "seq16-2", "seq-step2");
         }, 100);
 
         return { device, context };
@@ -307,7 +307,7 @@ setup().then(({ device }) => { // ✅ Unpack device properly
         }
 
         updateVisualizer(device, "seq16", "seq-step");   // ✅ Fix: Pass device
-        updateVisualizer(device, "seq16-2", "seq-step-2"); // ✅ Fix: Pass device
+        updateVisualizer(device, "seq16-2", "seq-step2"); // ✅ Fix: Pass device
         watchSeq16()
         setupChatbotWithTTS(device);
     } else {
