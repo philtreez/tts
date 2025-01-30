@@ -306,6 +306,27 @@ class TrashyChatbot {
         });
     }
     
+    setup().then(device => {
+        if (device) {
+            // Make sure the parameter exists
+            const seq16Param = device.parametersById.get("seq16");
+            if (!seq16Param) {
+                console.error("❌ RNBO Parameter 'seq16' not found!");
+                return;
+            }
+    
+            // Subscribe to parameter changes
+            device.parameterChangeEvent.subscribe((param) => {
+                if (param.id === seq16Param.id) {
+                    updateVisualizer("seq16", "your-div-class");
+                }
+            });
+    
+            console.log("✅ Subscribed to seq16 parameter changes!");
+        } else {
+            console.error("❌ RNBO Device not initialized!");
+        }
+    });
     
 
 // Text zu Phoneme umwandeln mit lokalem Wörterbuch
