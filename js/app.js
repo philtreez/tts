@@ -224,7 +224,7 @@ class TrashyChatbot {
     }
 }
 
-let device;
+let device; // Make sure device is globally accessible
 let context;
 
 async function setup() {
@@ -235,7 +235,7 @@ async function setup() {
     const outputNode = context.createGain();
     outputNode.connect(context.destination);
 
-    // Audio context resume handler
+    // Handle Audio Context Resumption
     const resumeHandler = async () => {
         if (context.state !== "running") {
             await context.resume();
@@ -257,37 +257,33 @@ async function setup() {
             await loadRNBOScript(patcher.desc.meta.rnboversion);
         }
 
-        // Create RNBO device
-        const device = await RNBO.createDevice({ context, patcher });
+        // Create RNBO device and store it in global variable
+        device = await RNBO.createDevice({ context, patcher });
         device.node.connect(outputNode);
         console.log("✅ RNBO WebAudio erfolgreich initialisiert!");
 
-        // Visualization debug
+        // Debug: Check RNBO parameters
         console.groupCollapsed("🏗️ Visualization Setup Debug");
         console.log("Device parameters:", device.parameters);
         console.log("ParametersById:", device.parametersById);
-        
-        // Verify visualization parameters exist
-        const visParams = ["seq16", "seq162"];
-        visParams.forEach(param => {
-            if (!device.parametersById.get(param)) {
-                console.error(`❌ Parameter "${param}" nicht gefunden!`);
-            }
-        });
-        
         console.groupEnd();
 
-        // Wait for DOM to be ready
-        await new Promise(resolve => {
-            if (document.readyState === 'complete') resolve();
-            else window.addEventListener('load', resolve);
+        // Wait for the DOM to be fully loaded
+        if (document.readyState !== "complete") {
+            await new Promise(resolve => window.addEventListener("load", resolve));
+        }
+
+        // Ensure visualization parameters exist
+        const visParams = ["seq16", "seq16-2"];
+        visParams.forEach(param => {
+            if (!device.parametersById.get(param)) {
+                console.error(`❌ RNBO Parameter "${param}" nicht gefunden!`);
+            }
         });
 
-        // Initialize visualizers with delay
-        setTimeout(() => {
-            updateVisualizer(device, "seq16", "seq-step");
-            updateVisualizer(device, "seq16-2", "seq-step2");
-        }, 100);
+        // Initialize visualizers
+        updateVisualizer(device, "seq16", "seq-step");
+        updateVisualizer(device, "seq16-2", "seq-step2");
 
         return { device, context };
     } catch (err) {
@@ -295,6 +291,7 @@ async function setup() {
         return null;
     }
 }
+
 
 setup().then(({ device }) => { // ✅ Unpack device properly
     if (device) {
