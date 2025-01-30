@@ -233,44 +233,67 @@ async function setup() {
     console.log("🚀 app.js läuft!");
 
     const WAContext = window.AudioContext || window.webkitAudioContext;
-    context = new WAContext(); // Assign to global context
+    context = new WAContext();
     const outputNode = context.createGain();
     outputNode.connect(context.destination);
 
-    document.addEventListener("click", async function resumeAudioContext() {
+    // Audio context resume handler
+    const resumeHandler = async () => {
         if (context.state !== "running") {
             await context.resume();
             console.log("🔊 AudioContext wurde gestartet!");
         }
-        document.removeEventListener("click", resumeAudioContext);
-    });
+        document.removeEventListener("click", resumeHandler);
+    };
+    document.addEventListener("click", resumeHandler);
 
-    let response, patcher;
     try {
-        response = await fetch(patchExportURL);
-        patcher = await response.json();
+        // Load RNBO patch
+        const response = await fetch(patchExportURL);
+        const patcher = await response.json();
         console.log("📦 RNBO Patch erfolgreich geladen:", patcher);
 
+        // Load RNBO runtime if needed
         if (!window.RNBO) {
             console.log("📥 Lade RNBO...");
             await loadRNBOScript(patcher.desc.meta.rnboversion);
         }
-    } catch (err) {
-        console.error("❌ Fehler beim Laden des RNBO-Patchers:", err);
-        return null;
-    }
 
-    try {
-        device = await RNBO.createDevice({ context, patcher });
+        // Create RNBO device
+        const device = await RNBO.createDevice({ context, patcher });
         device.node.connect(outputNode);
-        console.log("✅ RNBO WebAudio erfolgreich geladen!");
+        console.log("✅ RNBO WebAudio erfolgreich initialisiert!");
 
-        updateVisualizer(device, "seq16", "seq-step");
-        updateVisualizer(device, "seq16-2", "seq-step-2");
+        // Visualization debug
+        console.groupCollapsed("🏗️ Visualization Setup Debug");
+        console.log("Device parameters:", device.parameters);
+        console.log("ParametersById:", device.parametersById);
+        
+        // Verify visualization parameters exist
+        const visParams = ["seq16", "seq16-2"];
+        visParams.forEach(param => {
+            if (!device.parametersById.get(param)) {
+                console.error(`❌ Parameter "${param}" nicht gefunden!`);
+            }
+        });
+        
+        console.groupEnd();
 
-        return { device, context }; // ✅ Return both
+        // Wait for DOM to be ready
+        await new Promise(resolve => {
+            if (document.readyState === 'complete') resolve();
+            else window.addEventListener('load', resolve);
+        });
+
+        // Initialize visualizers with delay
+        setTimeout(() => {
+            updateVisualizer(device, "seq16", "seq-step");
+            updateVisualizer(device, "seq16-2", "seq-step-2");
+        }, 100);
+
+        return { device, context };
     } catch (err) {
-        console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
+        console.error("❌ Kritischer Fehler während des Setups:", err);
         return null;
     }
 }
@@ -437,36 +460,62 @@ function setupChatbotWithTTS(device, context) {
 }
 
 function updateVisualizer(device, paramName, divClass) {
-    const steps = document.querySelectorAll(`.${divClass}`);
-
-    if (!steps.length) {
-        console.warn(`⚠️ No elements found for ${divClass}`);
-        return;
-    }
-
-    console.log(`✅ Found ${steps.length} elements for ${divClass}`);
-
-    const param = device.parametersById.get(paramName);
-    if (!param) {
-        console.error(`❌ RNBO Parameter '${paramName}' not found!`);
-        return;
-    }
-
-    param.valueChanged = (value) => {
-        const stepIndex = Math.floor(value); // Convert to integer
-        console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
-
-        // Hide all steps
-        steps.forEach(step => step.style.display = "none");
-
-        // Select the correct div by its `data-index`
-        const activeStep = document.querySelector(`.${divClass}[data-index="${stepIndex}"]`);
-        if (activeStep) {
-            activeStep.style.display = "block";
-        } else {
-            console.warn(`⚠️ No matching step for index ${stepIndex}`);
+    console.groupCollapsed(`🖥️ Initializing visualizer for ${paramName}`);
+    
+    try {
+        // Verify device connection
+        if (!device || !device.parametersById) {
+            console.error("❌ Ungültiges Gerät oder Parameter-Liste");
+            return;
         }
-    };
+
+        // Get parameter reference
+        const param = device.parametersById.get(paramName);
+        if (!param) {
+            console.error(`❌ Parameter "${paramName}" nicht gefunden!`);
+            return;
+        }
+
+        // Find DOM elements
+        const steps = document.querySelectorAll(`.${divClass}`);
+        console.log(`🔍 Gefundene Elemente für ${divClass}:`, steps);
+
+        if (!steps.length) {
+            console.error(`❌ Keine DOM-Elemente gefunden für Klasse: ${divClass}`);
+            return;
+        }
+
+        // Initial state update
+        steps.forEach(step => step.style.display = "none");
+        console.log(`🎨 Initiale Visualisierung für ${paramName} vorbereitet`);
+
+        // Add parameter listener
+        param.valueChanged = (value) => {
+            const stepIndex = Math.floor(value);
+            console.log(`📊 ${paramName} Update: Wert ${value} → Schritt ${stepIndex}`);
+
+            // Hide all steps
+            steps.forEach(step => step.style.display = "none");
+
+            // Show active step
+            const activeStep = document.querySelector(
+                `.${divClass}[data-index="${stepIndex}"]`
+            );
+            
+            if (activeStep) {
+                activeStep.style.display = "block";
+                console.debug(`👁️ Schritt ${stepIndex} sichtbar gemacht`);
+            } else {
+                console.warn(`⚠️ Kein Element für Index ${stepIndex} gefunden`);
+            }
+        };
+
+        console.log(`✅ Visualizer für ${paramName} erfolgreich initialisiert`);
+    } catch (err) {
+        console.error(`❌ Fehler im Visualizer ${paramName}:`, err);
+    } finally {
+        console.groupEnd();
+    }
 }
 
 
