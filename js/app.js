@@ -272,6 +272,17 @@ class TrashyChatbot {
         console.error("❌ Fehler beim Erstellen des RNBO-Geräts:", err);
         return null;
     }
+    function watchSeq16() {
+        setInterval(() => {
+            const param = device.parametersById.get("seq16");
+            if (!param) return; // Prevents errors if RNBO isn't ready
+    
+            const value = Math.floor(param.value); // Get the current value
+            console.log("🎛️ RNBO Param Changed:", value);
+    
+            updateVisualizer("seq16", "seq-step"); // Update the visualizer
+        }, 50); // Check every 50ms
+    }
 }
 
 
@@ -294,19 +305,6 @@ class TrashyChatbot {
             document.body.append(el);
         });
     }
-
-    function watchSeq16() {
-        setInterval(() => {
-            const param = device.parametersById.get("seq16");
-            if (!param) return; // Prevents errors if RNBO isn't ready
-    
-            const value = Math.floor(param.value); // Get the current value
-            console.log("🎛️ RNBO Param Changed:", value);
-    
-            updateVisualizer("seq16", "seq-step"); // Update the visualizer
-        }, 50); // Check every 50ms
-    }
-    
     
     
 
@@ -442,7 +440,6 @@ function updateVisualizer(paramName, divClass) {
 setup().then(device => {
     if (device) {
         setupChatbotWithTTS(device);
-        updateVisualizer(paramName, divClass)
     } else {
         console.error("❌ RNBO-Device wurde nicht geladen!");
     }
