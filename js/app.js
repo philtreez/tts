@@ -275,27 +275,24 @@ class TrashyChatbot {
 }
 
     
-    setup().then(device => {
-        if (device) {
-            // Make sure the parameter exists
-            const seq16Param = device.parametersById.get("seq16");
-            if (!seq16Param) {
-                console.error("❌ RNBO Parameter 'seq16' not found!");
-                return;
-            }
-    
-            // Subscribe to parameter changes
-            device.parameterChangeEvent.subscribe((param) => {
-                if (param.id === seq16Param.id) {
-                    updateVisualizer("seq16", "seq-step");
-                }
-            });
-    
-            console.log("✅ Subscribed to seq16 parameter changes!");
-        } else {
-            console.error("❌ RNBO Device not initialized!");
+setup().then(device => {
+    if (device) {
+        console.log("✅ RNBO Device initialized!");
+
+        // Ensure RNBO parameter exists before updating visualizer
+        if (!device.parametersById.get("seq16")) {
+            console.error("❌ RNBO Parameter 'seq16' not found!");
+            return;
         }
-    });
+
+        updateVisualizer("seq16", "seq-step"); // First set
+        updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
+        
+        setupChatbotWithTTS(device);
+    } else {
+        console.error("❌ RNBO-Device was not loaded!");
+    }
+});
     
 
 // Text zu Phoneme umwandeln mit lokalem Wörterbuch
@@ -331,6 +328,7 @@ async function textToSpeechParams(text) {
             }
         });
 
+        console.log(device.parametersById.get("seq16"));
         console.log("🔡 Generierte Speech-Werte:", speechParams);
         return speechParams;
 
@@ -432,20 +430,29 @@ function updateVisualizer(paramName, divClass) {
 
     console.log(`✅ Found ${steps.length} elements for ${divClass}`);
 
-    device.parametersById.get(paramName).valueChanged = (value) => {
-        const stepIndex = Math.floor(value);
+    const param = device.parametersById.get(paramName);
+    if (!param) {
+        console.error(`❌ RNBO Parameter '${paramName}' not found!`);
+        return;
+    }
+
+    param.valueChanged = (value) => {
+        const stepIndex = Math.floor(value); // Convert to integer
         console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
 
         // Hide all steps
         steps.forEach(step => step.style.display = "none");
 
-        // Show only the div with the matching data-index
+        // Select the correct div by its `data-index`
         const activeStep = document.querySelector(`.${divClass}[data-index="${stepIndex}"]`);
         if (activeStep) {
             activeStep.style.display = "block";
+        } else {
+            console.warn(`⚠️ No matching step for index ${stepIndex}`);
         }
     };
 }
+
 
 setup().then(({ device, context }) => {
     if (device) {
