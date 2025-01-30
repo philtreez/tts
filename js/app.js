@@ -272,6 +272,34 @@ class TrashyChatbot {
     }
 }
 
+    updateVisualizer("seq16", "seq-step"); // First set of divs
+    updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
+
+    function updateVisualizer(paramName, divClass) {
+        const steps = document.querySelectorAll(`.${divClass}`);
+
+        if (!steps.length) {
+            console.warn(`⚠️ No elements found for ${divClass}`);
+            return;
+        }
+
+        console.log(`✅ Found ${steps.length} elements for ${divClass}`);
+
+        // Listen for RNBO parameter changes
+        device.parametersById.get(paramName).valueChanged = (value) => {
+            const stepIndex = Math.floor(value);
+            console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
+
+            // Hide all steps (completely remove from layout)
+            steps.forEach(step => step.style.display = "none");
+
+            // Show active step
+            if (steps[stepIndex]) {
+                steps[stepIndex].style.display = "block";
+            }
+        };
+    }
+
     // Lade RNBO-Skript dynamisch
     function loadRNBOScript(version) {
         return new Promise((resolve, reject) => {
@@ -292,34 +320,7 @@ class TrashyChatbot {
         });
     }
 
-    updateVisualizer("seq16", "seq-step"); // First set of divs
-    updateVisualizer("seq16-2", "seq-step-2"); // Second set (if needed)
 
-    function updateVisualizer(paramName, divClass) {
-        const steps = document.querySelectorAll(`.${divClass}`);
-    
-        if (!steps.length) {
-            console.warn(`⚠️ No elements found for ${divClass}`);
-            return;
-        }
-    
-        console.log(`✅ Found ${steps.length} elements for ${divClass}`);
-    
-        // Listen for RNBO parameter changes
-        device.parametersById.get(paramName).valueChanged = (value) => {
-            const stepIndex = Math.floor(value);
-            console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
-    
-            // Hide all steps (completely remove from layout)
-            steps.forEach(step => step.style.display = "none");
-    
-            // Show active step
-            if (steps[stepIndex]) {
-                steps[stepIndex].style.display = "block";
-            }
-        };
-    }
-    
 
 // Text zu Phoneme umwandeln mit lokalem Wörterbuch
 async function textToSpeechParams(text) {
