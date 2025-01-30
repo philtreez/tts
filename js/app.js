@@ -224,13 +224,11 @@ class TrashyChatbot {
     }
 }
 
-// Remove p5.sound.min.js from your HTML imports
-// Add this before any audio code
-delete window.p5.prototype.AudioContext;
-delete window.p5.prototype.getAudioContext;
-
 let device;
 let context;
+
+delete window.p5.prototype.AudioContext;
+delete window.p5.prototype.getAudioContext;
 
 async function setup() {
     console.log("🚀 app.js läuft!");
