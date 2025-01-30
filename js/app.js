@@ -284,27 +284,6 @@ class TrashyChatbot {
         }, 50); // Check every 50ms
     }
 }
-
-
-    // Lade RNBO-Skript dynamisch
-    function loadRNBOScript(version) {
-        return new Promise((resolve, reject) => {
-            if (/^\d+\.\d+\.\d+-dev$/.test(version)) {
-                throw new Error("RNBO Debug-Version erkannt! Bitte eine stabile Version exportieren.");
-            }
-            const el = document.createElement("script");
-            el.src = `https://c74-public.nyc3.digitaloceanspaces.com/rnbo/${encodeURIComponent(version)}/rnbo.min.js`;
-            el.onload = () => {
-                console.log("✅ RNBO.js erfolgreich geladen.");
-                resolve();
-            };
-            el.onerror = err => {
-                console.error("❌ Fehler beim Laden von rnbo.js:", err);
-                reject(new Error(`Fehler beim Laden von rnbo.js v${version}`));
-            };
-            document.body.append(el);
-        });
-    }
     
     setup().then(device => {
         if (device) {
@@ -430,6 +409,26 @@ function setupChatbotWithTTS(device) {
             event.preventDefault(); // Prevents a new line
             sendButton.click(); // Simulates button click
         }
+    });
+}
+
+   // Lade RNBO-Skript dynamisch
+   function loadRNBOScript(version) {
+    return new Promise((resolve, reject) => {
+        if (/^\d+\.\d+\.\d+-dev$/.test(version)) {
+            throw new Error("RNBO Debug-Version erkannt! Bitte eine stabile Version exportieren.");
+        }
+        const el = document.createElement("script");
+        el.src = `https://c74-public.nyc3.digitaloceanspaces.com/rnbo/${encodeURIComponent(version)}/rnbo.min.js`;
+        el.onload = () => {
+            console.log("✅ RNBO.js erfolgreich geladen.");
+            resolve();
+        };
+        el.onerror = err => {
+            console.error("❌ Fehler beim Laden von rnbo.js:", err);
+            reject(new Error(`Fehler beim Laden von rnbo.js v${version}`));
+        };
+        document.body.append(el);
     });
 }
 
