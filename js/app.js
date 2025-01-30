@@ -485,6 +485,37 @@ function updateStepVisual(activeStep) {
     }
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const playButton = document.querySelector(".play-button");
+
+    if (!playButton) {
+        console.error("❌ Play button not found!");
+        return;
+    }
+
+    setup().then(({ device }) => {
+        if (device) {
+            const playParam = device.parametersById.get("play");
+
+            if (!playParam) {
+                console.error("❌ RNBO Parameter 'play' not found!");
+                return;
+            }
+
+            console.log("🎵 Play button ready!");
+
+            let isPlaying = false;
+
+            playButton.addEventListener("click", () => {
+                isPlaying = !isPlaying; // Toggle play state
+                playParam.value = isPlaying ? 1 : 0; // 1 = Play, 0 = Stop
+
+                console.log(`🎛 Play state: ${isPlaying ? "▶ Playing" : "⏹ Stopped"}`);
+                playButton.textContent = isPlaying ? "Stop" : "Play"; // Update button text
+            });
+        }
+    });
+});
 
 
 
