@@ -339,15 +339,17 @@ async function textToSpeechParams(text) {
     }
 }
 
-async function sendTextToRNBO(device, text, context, isChat = true) {
+async function sendTextToRNBO(device, text, isChat = true) {
     if (!device) {
-        console.error("❌ RNBO nicht geladen!");
+        console.error("❌ RNBO not initialized! Delaying execution...");
+        setTimeout(() => sendTextToRNBO(device, text, isChat), 500);
         return;
     }
 
-    const speechParam = device.parametersById.get("speech");
+    const speechParam = device.parametersById?.get("speech");
     if (!speechParam) {
-        console.error("❌ RNBO-Parameter 'speech' existiert nicht! Überprüfe deinen RNBO-Patch.");
+        console.error("❌ RNBO-Parameter 'speech' not found! Checking again...");
+        setTimeout(() => sendTextToRNBO(device, text, isChat), 500);
         return;
     }
 
@@ -360,7 +362,7 @@ async function sendTextToRNBO(device, text, context, isChat = true) {
         setTimeout(() => {
             console.log(`🎛 Setze RNBO-Parameter: speech = ${speechValue}`);
             speechParam.value = speechValue;
-        }, index * 150); // 200ms Verzögerung pro Phonem
+        }, index * 150);
     });
 
     device.node.connect(context.destination);
