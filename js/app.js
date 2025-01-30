@@ -500,7 +500,7 @@ function updateVisualizer(device, paramName, divClass) {
             );
             
             if (activeStep) {
-                activeStep.style.display = "block";
+                activeStep.style.display = "flex";
                 console.debug(`👁️ Schritt ${stepIndex} sichtbar gemacht`);
             } else {
                 console.warn(`⚠️ Kein Element für Index ${stepIndex} gefunden`);
