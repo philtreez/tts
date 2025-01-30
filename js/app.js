@@ -294,29 +294,31 @@ class TrashyChatbot {
         });
     }
 
-    // 🔹 The function itself should go anywhere **outside** setup()
-function updateVisualizer(paramName, divClass) {
-    const steps = document.querySelectorAll(`.${divClass}`);
-
-    if (!steps.length) {
-        console.warn(`⚠ No elements found for ${divClass}`);
-        return;
-    }
-
-    // Listen for RNBO parameter changes
-    device.parametersById.get(paramName).valueChanged = (value) => {
-        const stepIndex = Math.floor(value); // Make sure it's an integer
-        console.log(`🔄 Updating ${divClass}: Step ${stepIndex}`);
-
-        // Hide all steps first
-        steps.forEach(step => step.style.opacity = 0);
-
-        // Show the active step
-        if (steps[stepIndex]) {
-            steps[stepIndex].style.opacity = 1;
+    function updateVisualizer(paramName, divClass) {
+        const steps = document.querySelectorAll(`.${divClass}`);
+    
+        if (!steps.length) {
+            console.warn(`⚠️ No elements found for ${divClass}`);
+            return;
         }
-    };
-}
+    
+        console.log(`✅ Found ${steps.length} elements for ${divClass}`);
+    
+        // Listen for RNBO parameter changes
+        device.parametersById.get(paramName).valueChanged = (value) => {
+            const stepIndex = Math.floor(value);
+            console.log(`🎛️ Updating ${divClass}: Step ${stepIndex}`);
+    
+            // Hide all steps (completely remove from layout)
+            steps.forEach(step => step.style.display = "none");
+    
+            // Show active step
+            if (steps[stepIndex]) {
+                steps[stepIndex].style.display = "block";
+            }
+        };
+    }
+    
 
 // Text zu Phoneme umwandeln mit lokalem Wörterbuch
 async function textToSpeechParams(text) {
